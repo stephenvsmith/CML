@@ -59,6 +59,10 @@ test_that("Testing combn",{
   expect_equal(combn_cpp(1:3,0),res)
   expect_equal(combn_cpp(c(1,3,8),1),combn(c(1,3,8),1))
   expect_error(combn_cpp(2,-1))
+  
+  for (i in 1:10){
+    expect_equal(combn_cpp(i,1),matrix(i,nrow = 1,ncol=1))
+  }
 })
 
 test_that("Testing membership identification function",{

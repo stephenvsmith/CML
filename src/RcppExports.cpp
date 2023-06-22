@@ -704,6 +704,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// check_directed_undirected
+List check_directed_undirected(int nodes, StringVector node_names, NumericMatrix adj, int i, int j);
+RcppExport SEXP _CML_check_directed_undirected(SEXP nodesSEXP, SEXP node_namesSEXP, SEXP adjSEXP, SEXP iSEXP, SEXP jSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type node_names(node_namesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type adj(adjSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_directed_undirected(nodes, node_names, adj, i, j));
+    return rcpp_result_gen;
+END_RCPP
+}
+// check_sizes
+List check_sizes(int nodes, StringVector node_names, NumericMatrix adj);
+RcppExport SEXP _CML_check_sizes(SEXP nodesSEXP, SEXP node_namesSEXP, SEXP adjSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type node_names(node_namesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type adj(adjSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_sizes(nodes, node_names, adj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // check_amat_setval
 int check_amat_setval(int nodes, StringVector node_names, NumericMatrix adj, int i, int j, int val);
 RcppExport SEXP _CML_check_amat_setval(SEXP nodesSEXP, SEXP node_namesSEXP, SEXP adjSEXP, SEXP iSEXP, SEXP jSEXP, SEXP valSEXP) {
@@ -868,6 +896,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_checkWronglyCovered
+void test_checkWronglyCovered(int nodes, StringVector node_names, NumericMatrix adj, NumericVector p);
+RcppExport SEXP _CML_test_checkWronglyCovered(SEXP nodesSEXP, SEXP node_namesSEXP, SEXP adjSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type node_names(node_namesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type adj(adjSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type p(pSEXP);
+    test_checkWronglyCovered(nodes, node_names, adj, p);
+    return R_NilValue;
+END_RCPP
+}
 // checkNeighborhoodId
 List checkNeighborhoodId(int nodes, StringVector node_names, NumericMatrix adj, int i, bool verbose);
 RcppExport SEXP _CML_checkNeighborhoodId(SEXP nodesSEXP, SEXP node_namesSEXP, SEXP adjSEXP, SEXP iSEXP, SEXP verboseSEXP) {
@@ -946,6 +987,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
     rcpp_result_gen = Rcpp::wrap(testIsMBMember(nodes, mb_mat, target, i));
     return rcpp_result_gen;
+END_RCPP
+}
+// testSilencer
+void testSilencer(NumericVector nodes, NumericMatrix mb_mat, double target, double i);
+RcppExport SEXP _CML_testSilencer(SEXP nodesSEXP, SEXP mb_matSEXP, SEXP targetSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type nodes(nodesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type mb_mat(mb_matSEXP);
+    Rcpp::traits::input_parameter< double >::type target(targetSEXP);
+    Rcpp::traits::input_parameter< double >::type i(iSEXP);
+    testSilencer(nodes, mb_mat, target, i);
+    return R_NilValue;
 END_RCPP
 }
 // test_union
@@ -1554,6 +1608,35 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// checkPotentialVStruct
+bool checkPotentialVStruct(NumericVector neighbors, size_t i, size_t j, NumericVector sep, size_t k);
+RcppExport SEXP _CML_checkPotentialVStruct(SEXP neighborsSEXP, SEXP iSEXP, SEXP jSEXP, SEXP sepSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type neighbors(neighborsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
+    Rcpp::traits::input_parameter< size_t >::type j(jSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sep(sepSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(checkPotentialVStruct(neighbors, i, j, sep, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// checkGetS
+List checkGetS(NumericVector neighbors, size_t i, size_t j, NumericVector sep);
+RcppExport SEXP _CML_checkGetS(SEXP neighborsSEXP, SEXP iSEXP, SEXP jSEXP, SEXP sepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type neighbors(neighborsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
+    Rcpp::traits::input_parameter< size_t >::type j(jSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sep(sepSEXP);
+    rcpp_result_gen = Rcpp::wrap(checkGetS(neighbors, i, j, sep));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_CML_sampleCML", (DL_FUNC) &_CML_sampleCML, 9},
@@ -1605,6 +1688,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CML_check_amat_col_retrieval", (DL_FUNC) &_CML_check_amat_col_retrieval, 4},
     {"_CML_check_adjacent_non_adjacent", (DL_FUNC) &_CML_check_adjacent_non_adjacent, 4},
     {"_CML_check_non_adjacent_solo", (DL_FUNC) &_CML_check_non_adjacent_solo, 4},
+    {"_CML_check_directed_undirected", (DL_FUNC) &_CML_check_directed_undirected, 5},
+    {"_CML_check_sizes", (DL_FUNC) &_CML_check_sizes, 3},
     {"_CML_check_amat_setval", (DL_FUNC) &_CML_check_amat_setval, 6},
     {"_CML_check_amat_setval_function", (DL_FUNC) &_CML_check_amat_setval_function, 6},
     {"_CML_checkIfAdjacent", (DL_FUNC) &_CML_checkIfAdjacent, 5},
@@ -1616,12 +1701,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CML_check_set_amat", (DL_FUNC) &_CML_check_set_amat, 3},
     {"_CML_check_disc_path", (DL_FUNC) &_CML_check_disc_path, 6},
     {"_CML_check_upd_path", (DL_FUNC) &_CML_check_upd_path, 6},
+    {"_CML_test_checkWronglyCovered", (DL_FUNC) &_CML_test_checkWronglyCovered, 4},
     {"_CML_checkNeighborhoodId", (DL_FUNC) &_CML_checkNeighborhoodId, 5},
     {"_CML_testInitializeMBList", (DL_FUNC) &_CML_testInitializeMBList, 2},
     {"_CML_testInitializeMBListPop", (DL_FUNC) &_CML_testInitializeMBListPop, 2},
     {"_CML_testAccessMB", (DL_FUNC) &_CML_testAccessMB, 3},
     {"_CML_testAccessMultipleMB", (DL_FUNC) &_CML_testAccessMultipleMB, 6},
     {"_CML_testIsMBMember", (DL_FUNC) &_CML_testIsMBMember, 4},
+    {"_CML_testSilencer", (DL_FUNC) &_CML_testSilencer, 4},
     {"_CML_test_union", (DL_FUNC) &_CML_test_union, 2},
     {"_CML_test_sort", (DL_FUNC) &_CML_test_sort, 1},
     {"_CML_test_fill", (DL_FUNC) &_CML_test_fill, 3},
@@ -1666,6 +1753,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CML_checkSeparationFunc", (DL_FUNC) &_CML_checkSeparationFunc, 5},
     {"_CML_checkSeparationFuncCorrected", (DL_FUNC) &_CML_checkSeparationFuncCorrected, 5},
     {"_CML_checkIsSepSetMember", (DL_FUNC) &_CML_checkIsSepSetMember, 6},
+    {"_CML_checkPotentialVStruct", (DL_FUNC) &_CML_checkPotentialVStruct, 5},
+    {"_CML_checkGetS", (DL_FUNC) &_CML_checkGetS, 4},
     {NULL, NULL, 0}
 };
 

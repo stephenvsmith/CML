@@ -101,6 +101,7 @@ public:
   NumericVector get_r_vals(size_t d,const std::vector<bool> &visited);
   NumericVector minDiscPath(size_t a,size_t b,size_t c); // tested
   bool isPathUncovered(NumericVector p);
+  void checkWronglyCovered(NumericVector p);
   bool areEdgesPotentiallyDirected(size_t alpha,size_t beta);
   NumericVector idThetaVals(size_t alpha,size_t beta,
                             const std::vector<bool> &visited);

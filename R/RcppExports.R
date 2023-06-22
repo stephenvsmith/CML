@@ -197,6 +197,14 @@ check_non_adjacent_solo <- function(nodes, node_names, adj, i) {
     .Call(`_CML_check_non_adjacent_solo`, nodes, node_names, adj, i)
 }
 
+check_directed_undirected <- function(nodes, node_names, adj, i, j) {
+    .Call(`_CML_check_directed_undirected`, nodes, node_names, adj, i, j)
+}
+
+check_sizes <- function(nodes, node_names, adj) {
+    .Call(`_CML_check_sizes`, nodes, node_names, adj)
+}
+
 check_amat_setval <- function(nodes, node_names, adj, i, j, val) {
     .Call(`_CML_check_amat_setval`, nodes, node_names, adj, i, j, val)
 }
@@ -241,6 +249,10 @@ check_upd_path <- function(nodes, node_names, adj, a, b, e) {
     .Call(`_CML_check_upd_path`, nodes, node_names, adj, a, b, e)
 }
 
+test_checkWronglyCovered <- function(nodes, node_names, adj, p) {
+    invisible(.Call(`_CML_test_checkWronglyCovered`, nodes, node_names, adj, p))
+}
+
 checkNeighborhoodId <- function(nodes, node_names, adj, i, verbose = FALSE) {
     .Call(`_CML_checkNeighborhoodId`, nodes, node_names, adj, i, verbose)
 }
@@ -263,6 +275,10 @@ testAccessMultipleMB <- function(nodes, mb_mat, v, include_targets = FALSE, excl
 
 testIsMBMember <- function(nodes, mb_mat, target, i) {
     .Call(`_CML_testIsMBMember`, nodes, mb_mat, target, i)
+}
+
+testSilencer <- function(nodes, mb_mat, target, i) {
+    invisible(.Call(`_CML_testSilencer`, nodes, mb_mat, target, i))
 }
 
 test_union <- function(x, y) {
@@ -439,5 +455,13 @@ checkSeparationFuncCorrected <- function(neighbors, i, j, sep, val_to_check) {
 
 checkIsSepSetMember <- function(neighbors, i, j, sep1, sep2, val_to_check) {
     .Call(`_CML_checkIsSepSetMember`, neighbors, i, j, sep1, sep2, val_to_check)
+}
+
+checkPotentialVStruct <- function(neighbors, i, j, sep, k) {
+    .Call(`_CML_checkPotentialVStruct`, neighbors, i, j, sep, k)
+}
+
+checkGetS <- function(neighbors, i, j, sep) {
+    .Call(`_CML_checkGetS`, neighbors, i, j, sep)
 }
 

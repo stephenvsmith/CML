@@ -5,23 +5,23 @@
 
 class SepSetList {
 public:
-  SepSetList(NumericVector &neighbors); // tested
+  SepSetList(NumericVector &neighbors);
 
   void changeList(size_t i,size_t j,
-                  NumericVector sep=NumericVector::create(-1)); // tested
+                  NumericVector sep=NumericVector::create(-1));
 
-  NumericVector getSepSet(size_t i,size_t j); // tested
-
-  bool isPotentialVStruct(size_t i, size_t j,size_t k);// implicitly tested with isSepSetMember
-  bool isSepSetMember(size_t i,size_t j,size_t k); // tested
+  NumericVector getSepSet(size_t i,size_t j);
+  
+  bool isPotentialVStruct(size_t i, size_t j,size_t k);
+  bool isSepSetMember(size_t i,size_t j,size_t k); 
   
   void printSepSetList();
   List getS() { return S; };
 
 private:
-  size_t N;
-  NumericVector nodes;
-  List S;
+  size_t N; // Number of neighbors in the neighborhood
+  NumericVector nodes; // Set of nodes being considered
+  List S; // structure containing separating sets
 };
 
 #endif

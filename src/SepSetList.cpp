@@ -1,12 +1,23 @@
 #include "SepSetList.h"
 
 /*
+ * Efficient numbering is the position of the node in the neighbors vector
+ * used to initialize the separating set list
+ * 
+ * True numbering is the position of the node in the vector of the nodes from
+ * the entire graph
+ * 
+ * Efficient numbering is used to index the SepSetList object
+ * True numbering is used for the separating sets
+ */
+
+/*
  * Initializes a list containing separating sets for all pairs of nodes
  * Each separating set is set to NA initially
  */
 SepSetList::SepSetList(NumericVector &neighbors):nodes(neighbors){
   N = neighbors.size();
-   for (size_t i : neighbors){
+  for (size_t i : neighbors){
     List subset = List::create();
     for (size_t j : neighbors){
       subset.push_back(NumericVector::create(NA_REAL));

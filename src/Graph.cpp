@@ -219,9 +219,15 @@ bool Graph::isPathUncovered(NumericVector p){
   return true;
 }
 
+void Graph::checkWronglyCovered(NumericVector p){
+  if (!isPathUncovered(p)){
+    stop("Error in path construction.");
+  }
+}
+
 // Check if alpha and beta are properly connected for a potentially directed path
 bool Graph::areEdgesPotentiallyDirected(size_t alpha,size_t beta){
-  // Check p.d. requirements
+  // Check p.d. requirements: cannot be into alpha or out of beta
   bool cond1 = amat(alpha,beta) == 1 || amat(alpha,beta)==2;
   bool cond2 = amat(beta,alpha) == 1 || amat(beta,alpha)==3;
   return cond1 && cond2;
@@ -272,9 +278,8 @@ NumericVector Graph::idUncovPdPath(size_t alpha,size_t beta,size_t gamma,
     if (verbose) printVecElementsNoNames(final_path,"Path: ","\n");
     
     // Ensure the path is uncovered
-    if (!isPathUncovered(final_path)){
-      stop("Error in path construction.");
-    }
+    checkWronglyCovered(final_path);
+    
     if (verbose) printVecElementsNoNames(final_path,"Final Path: ","\n");
     return final_path;
   } else {
@@ -334,6 +339,7 @@ NumericVector Graph::minUncovPdPath(size_t alpha,size_t beta,size_t gamma){
       // Check that d fulfills p.d. requirements
       final_path = idUncovPdPath(alpha,beta,gamma,d,mpath);
       if (final_path.length()>0){
+        Rcout << "Final path first\n";
         return final_path;
       } else {
         // d and gamma are not connected or connected with a "wrong" edge
@@ -363,9 +369,6 @@ NumericVector Graph::minUncovPdPath(size_t alpha,size_t beta,size_t gamma){
     } // End while
   }
   
-  if (final_path.length()==0){
-    return NumericVector(0);  
-  } else {
-    return final_path;  
-  }
+  return NumericVector(0);  
+  
 }

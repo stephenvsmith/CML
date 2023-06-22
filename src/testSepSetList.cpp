@@ -80,5 +80,28 @@ bool checkIsSepSetMember(NumericVector neighbors,size_t i,size_t j,
   return results;
 }
 
+// [[Rcpp::export]]
+bool checkPotentialVStruct(NumericVector neighbors,size_t i,size_t j,
+                           NumericVector sep,
+                           size_t k){
+  SepSetList *S = new SepSetList(neighbors);
+  S -> changeList(i,j,sep);
+  S -> changeList(j,i,sep);
+  bool results = S ->isPotentialVStruct(i,j,k);
+  delete S;
+  return results;
+}
+
+// [[Rcpp::export]]
+List checkGetS(NumericVector neighbors,size_t i,size_t j,
+               NumericVector sep){
+  SepSetList *S = new SepSetList(neighbors);
+  S -> changeList(i,j,sep);
+  S -> changeList(j,i,sep);
+  List L = S -> getS();
+  delete S;
+  return L;
+}
+
 
 

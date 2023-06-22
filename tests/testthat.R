@@ -1,4 +1,4 @@
 library(testthat)
-library(LocalFCI)
+library(CML)
 
-test_check("LocalFCI")
+test_check("CML")

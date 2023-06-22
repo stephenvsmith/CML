@@ -38,4 +38,25 @@ bool testIsMBMember(NumericVector nodes,NumericMatrix mb_mat,
   return mb_list.inMB(target,i);
 }
 
+// [[Rcpp::export]]
+void testSilencer(NumericVector nodes,NumericMatrix mb_mat,
+                  double target,double i){
+  NumericVector a {target,i};
+  NumericVector b {i,target};
+  MBList mb_list = MBList(nodes,mb_mat,true);
+  // Should print output
+  Rcout << "Round 1:\n";
+  NumericVector tmp = mb_list.getMBMultipleTargets(a);
+  bool tmp1 = mb_list.silencer();
+  // Should not print output
+  Rcout << "Round 2:\n";
+  tmp = mb_list.getMBMultipleTargets(b);
+  mb_list.removeSilencer(tmp1);
+  // Should print output
+  Rcout << "Round 3:\n";
+  tmp = mb_list.getMBMultipleTargets(b);
+  
+  return;
+}
+
 

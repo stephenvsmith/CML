@@ -1,3 +1,6 @@
+
+# Data Setup --------------------------------------------------------------
+
 data("asiadf")
 data("asiaDAG")
 node_names <- colnames(asiaDAG)
@@ -5,8 +8,10 @@ asiaDAG <- matrix(asiaDAG,nrow = ncol(asiadf),ncol = ncol(asiadf))
 asiadf <- as.matrix(asiadf)
 p <- length(node_names)
 
+# Test Neighborhood Estimation Functions ----------------------------------
+
 test_that("Neighborhood Estimation",{
-  # Bronc and Either are in dysp's Markov Blanket
+  # bronc and either are in dysp's Markov Blanket
   expect_equal(getMB(8,asiadf)$mb,c(5,6))
   expect_equal(getMB(8,asiadf,method = "SES")$mb,c(5,6))
   expect_equal(getMB(8,asiadf,method = "pc.sel")$mb,c(5,6))
@@ -23,7 +28,7 @@ test_that("Neighborhood Estimation",{
   })
   expect_equal(mbList$num_tests,8)
   
-  adj <- getEstInitialDAG(mbList$mb_list,p)
+  expect_snapshot_output(adj <- getEstInitialDAG(mbList$mb_list,p,verbose = TRUE))
   for (i in 1:length(targets)){
     target <- targets[i]
     neighbors <- mbList$mb_list[[i]][["mb"]]
@@ -39,6 +44,16 @@ test_that("Neighborhood Estimation",{
   expect_equal(getTotalMBTime(mbList$mb_list),sum(times),tolerance = 1e-01)
 })
 
+test_that("Verbose arguments",{
+  targets <- c(3,5,6,8)
+  mbList <- getAllMBs(targets,asiadf)
+  
+  expect_snapshot_output(adj <- getEstInitialDAG(mbList$mb_list,p,verbose = TRUE))
+})
+
+
+
+# Getting second-order neighbors ------------------------------------------
 
 connections <- list(
   "asia"=c("tub"),
@@ -50,6 +65,129 @@ connections <- list(
   "dysp"=c("either","bronc"),
   "xray"=c("either")
 )
+
+pc_set_names <- list(
+  "asia"=c("tub"),
+  "tub"=c("asia","either"),
+  "either"=c("tub","lung","xray","dysp"),
+  "lung"=c("either","smoke"),
+  "smoke"=c("lung","bronc"),
+  "bronc"=c("smoke","dysp"),
+  "dysp"=c("either","bronc"),
+  "xray"=c("either")
+)
+
+order2neighbors <- list(
+  "asia"=setdiff(pc_set_names[["tub"]],"asia"),
+  "tub"=setdiff(unique(unlist(pc_set_names[pc_set_names[["tub"]]])),"tub"),
+  "either"=setdiff(unique(unlist(pc_set_names[pc_set_names[["either"]]])),"either"),
+  "lung"=setdiff(unique(unlist(pc_set_names[pc_set_names[["lung"]]])),"lung"),
+  "smoke"=setdiff(unique(unlist(pc_set_names[pc_set_names[["smoke"]]])),"smoke"),
+  "bronc"=setdiff(unique(unlist(pc_set_names[pc_set_names[["bronc"]]])),"bronc"),
+  "dysp"=setdiff(unique(unlist(pc_set_names[pc_set_names[["dysp"]]])),"dysp"),
+  "xray"=setdiff(unique(unlist(pc_set_names[pc_set_names[["xray"]]])),"xray")
+)
+
+pc_set <- lapply(node_names,function(n){
+  rm_names <- sapply(pc_set_names[[n]],function(nm){
+    res <- which(nm==node_names)
+    return(res)
+  })
+  names(rm_names) <- NULL
+  new_pc_set_n <- list("mb"=rm_names)
+  return(new_pc_set_n)
+})
+names(pc_set) <- as.character(1:8)
+
+test_that("Second-order neighbors",{
+  target <- 6 # either
+  pc_set1 <- pc_set[['6']][['mb']]
+  target_mbs1 <- pc_set['6']
+  first_order_mbs1 <- pc_set[pc_set[['6']][['mb']]]
+  pairs_checked1 <- matrix(0,nrow = 8,ncol = 8)
+  
+  # target node: either
+  # first-order neighbors: tub, lung, bronc, xray, dysp
+  # second-order neighbors: asia, smoke
+  order2nbrs <- sort(node_names[getSecondOrderNeighbors(target,
+                                                        pc_set1,
+                                                        target_mbs1,
+                                                        first_order_mbs1,
+                                                        pairs_checked1)])
+  # bronc included b/c spouse not in p-c set
+  expect_equal(order2nbrs,c("asia","bronc","smoke"))
+  
+  # Check pairs_checked
+  # Mark that we have checked "smoke" as a spouse
+  pairs_checked1[6,3] <- 1
+  order2nbrs1 <- sort(node_names[getSecondOrderNeighbors(target,
+                                                         pc_set1,
+                                                         target_mbs1,
+                                                         first_order_mbs1,
+                                                         pairs_checked1)])
+  expect_equal(order2nbrs1,c("asia","bronc"))
+  
+  pairs_checked1[6,3] <- 0
+  
+  # Check all second-order neighbors
+  for (target in 1:8){
+    pc_set1 <- pc_set[[as.character(target)]][['mb']]
+    target_mbs1 <- pc_set[[as.character(target)]]
+    first_order_mbs1 <- pc_set[pc_set[[as.character(target)]][['mb']]]
+    order2nbrs <- sort(node_names[getSecondOrderNeighbors(target,
+                                                          pc_set1,
+                                                          target_mbs1,
+                                                          first_order_mbs1,
+                                                          pairs_checked1)])
+    expect_equal(order2nbrs,sort(order2neighbors[[node_names[target]]]))
+  }
+})
+
+test_that("Test spouse recovery function (one target)",{
+  # should add bronc as a spouse
+  targets <- 6
+  expect_snapshot_output(captureSpouses(asiadf,targets,
+                                        pc_set[targets],
+                                        pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
+                                        threshold = 0.01,
+                                        TRUE))
+})
+
+test_that("Test spouse recovery function (two targets) 1",{
+  # should add bronc as a spouse
+  targets <- c(6,8)
+  expect_snapshot_output(captureSpouses(asiadf,targets,
+                                        pc_set[targets],
+                                        pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
+                                        threshold = 0.01,
+                                        TRUE))
+})
+
+test_that("Test spouse recovery function (multiple targets)",{
+  # tub and lung are spouses, as are either and bronc
+  targets_names <- c("tub","lung","either","bronc")
+  targets <- sapply(targets_names,function(t) which(t == node_names),USE.NAMES = FALSE)
+  expect_false(4 %in% pc_set[['2']][['mb']])
+  expect_false(2 %in% pc_set[['4']][['mb']])
+  expect_false(6 %in% pc_set[['5']][['mb']])
+  expect_false(5 %in% pc_set[['6']][['mb']])
+  expect_snapshot_output(results_spouse <- captureSpouses(asiadf,targets,
+                                                          pc_set[targets],
+                                                          pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
+                                                          threshold = 0.01,
+                                                          TRUE))
+  expect_true(4 %in% results_spouse$target_mbs[['2']][['mb']])
+  expect_true(2 %in% results_spouse$target_mbs[['4']][['mb']])
+  expect_true(6 %in% results_spouse$target_mbs[['5']][['mb']])
+  expect_true(5 %in% results_spouse$target_mbs[['6']][['mb']])
+  
+  expect_equal(results_spouse$target_mbs[['2']][['mb']],sort(c(pc_set[['2']][['mb']],4)))
+  expect_equal(results_spouse$target_mbs[['4']][['mb']],sort(c(pc_set[['4']][['mb']],2)))
+  expect_equal(results_spouse$target_mbs[['5']][['mb']],sort(c(pc_set[['5']][['mb']],6)))
+  expect_equal(results_spouse$target_mbs[['6']][['mb']],sort(c(pc_set[['6']][['mb']],5)))
+  
+  
+})
 
 test_that("Markov Blanket Estimation",{
   for (algo in c("MMPC","SES")){
@@ -234,5 +372,5 @@ test_that("Misc. Tests for MB Functions",{
                sum(unlist(lapply(mbList,
                                  function(x) {return(x$time)}))))
   expect_equal(getTotalMBTests(mbList),0)
-
+  
 })

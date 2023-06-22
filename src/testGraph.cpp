@@ -45,7 +45,7 @@ List check_pdag_object(int nodes,StringVector node_names,
   Rcout << "Adjacency Matrix:\n";
   g.printAmat();
   Rcout << "The neighbors of node " << i << " are " << g.getNeighbors(i,v) << std::endl;
-  NumericVector t {0,2};
+  NumericVector t {0,2,7};
   Rcout << "The neighbors of nodes " << t << " are " << g.getNeighborsMultiTargets(t,v) << std::endl;
   return List::create(
     _["OneNeighbor"]=g.getNeighbors(i,v),
@@ -127,6 +127,26 @@ NumericVector check_non_adjacent_solo(int nodes,StringVector node_names,NumericM
 }
 
 // [[Rcpp::export]]
+List check_directed_undirected(int nodes,StringVector node_names,
+                                        NumericMatrix adj,int i,int j){
+  Graph g(nodes,node_names,adj);
+  return List::create(
+    _["directed"]=g.isDirected(i,j),
+    _["undirected"]=g.isUndirected(i,j)
+  );
+}
+
+// [[Rcpp::export]]
+List check_sizes(int nodes,StringVector node_names,
+                               NumericMatrix adj){
+  Graph g(nodes,node_names,adj);
+  return List::create(
+    _["ncol"]=g.getNCol(),
+    _["nrow"]=g.getNRow()
+  );
+}
+
+// [[Rcpp::export]]
 int check_amat_setval(int nodes,StringVector node_names,NumericMatrix adj,int i,int j,int val){
   Graph g(nodes,node_names,adj);
   g(i,j)=val;
@@ -202,6 +222,13 @@ NumericVector check_upd_path(int nodes,StringVector node_names,NumericMatrix adj
   Graph g(nodes,node_names,adj);
   g.setVerboseTrue();
   return g.minUncovPdPath(a,b,e);
+}
+
+// [[Rcpp::export]]
+void test_checkWronglyCovered(int nodes,StringVector node_names,
+                                       NumericMatrix adj,NumericVector p){
+  Graph g(nodes,node_names,adj);
+  g.checkWronglyCovered(p);
 }
 
 // [[Rcpp::export]]
