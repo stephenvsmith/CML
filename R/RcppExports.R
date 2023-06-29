@@ -93,6 +93,18 @@ initializeCMLPop <- function(td, t, nodes_interest, names) {
     invisible(.Call(`_CML_initializeCMLPop`, td, t, nodes_interest, names))
 }
 
+getSizeCML <- function(td, df, t, nodes_interest, names) {
+    .Call(`_CML_getSizeCML`, td, df, t, nodes_interest, names)
+}
+
+setSCML <- function(td, df, t, nodes_interest, names, i, j, k) {
+    .Call(`_CML_setSCML`, td, df, t, nodes_interest, names, i, j, k)
+}
+
+setVerboseCML <- function(td, df, t, nodes_interest, names) {
+    invisible(.Call(`_CML_setVerboseCML`, td, df, t, nodes_interest, names))
+}
+
 checkSkeletonTotal <- function(td, df, t, nodes_interest, names) {
     .Call(`_CML_checkSkeletonTotal`, td, df, t, nodes_interest, names)
 }

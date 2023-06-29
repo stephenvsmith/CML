@@ -420,64 +420,64 @@ bool idAncestors(NumericMatrix reference,int desc,int anc,bool verbose=true){
 
 // Returns true if there is an ancestral path between anc and desc
 // that is not mediated by any node in the target neighborhood of either node
-bool checkAncestralPath(NumericMatrix reference,NumericVector targets,
-                        int anc,int desc,bool verbose=true){
-  if (verbose){
-    Rcout << "Checking if " << anc << " is an unmediated ancestor of " << desc << std::endl;
-  }
-  int p = reference.nrow();
-  StringVector node_names;
-  makeNodeNames(p,node_names);
-  DAG g_ref(p,node_names,reference,verbose);
-  
-  // If anc is not an ancestor of desc, return false
-  if (!g_ref.isAncestor(desc,anc)){
-    if (verbose){
-      Rcout << "Node " << desc << " is not a descendant of " << anc << std::endl;
-    }
-    return false;
-  }
-  
-  // Get parents of the potential descendant node
-  NumericVector parent_set = g_ref.getParents(desc);
-  NumericVector::iterator parent=parent_set.begin();
-  for (;parent<parent_set.end();++parent){
-    // Check if there is a parent node in the same target neighborhood
-    // as the descendant node which is also a descendant of the ancestral node
-    if (g_ref.isAncestor(*parent,anc) && 
-        sharedNeighborhood(reference,targets,*parent,desc,verbose)){
-      if (verbose){
-        Rcout << "Node " << *parent << " is a parent of " << desc;
-        Rcout << " and is in the same target neighborhood, while also being a ";
-        Rcout << "descendant of " << anc << std::endl;
-      }
-      return false;
-    }
-  }
-  
-  NumericVector children_set = g_ref.getChildren(anc);
-  NumericVector::iterator child=children_set.begin();
-  for (;child<children_set.end();++child){
-    // Check if there is a parent node in the same target neighborhood
-    // as the descendant node which is also a descendant of the ancestral node
-    if (g_ref.isAncestor(desc,*child) && 
-        sharedNeighborhood(reference,targets,*child,anc,verbose)){
-      if (verbose){
-        Rcout << "Node " << *child << " is a child of " << anc;
-        Rcout << " and is in the same target neighborhood, while also being an ";
-        Rcout << "ancestor of " << desc << std::endl;
-      }
-      return false;
-    }
-  }
-  // There are no mediating nodes in the path from anc to desc
-  // which share the same target neighborhood as desc
-  if (verbose){
-    Rcout << "There is an unmediated ancestral path between " << anc << " and " << desc << std::endl;
-  }
-  return true;
-  
-}
+// bool checkAncestralPath(NumericMatrix reference,NumericVector targets,
+//                         int anc,int desc,bool verbose=true){
+//   if (verbose){
+//     Rcout << "Checking if " << anc << " is an unmediated ancestor of " << desc << std::endl;
+//   }
+//   int p = reference.nrow();
+//   StringVector node_names;
+//   makeNodeNames(p,node_names);
+//   DAG g_ref(p,node_names,reference,verbose);
+//   
+//   // If anc is not an ancestor of desc, return false
+//   if (!g_ref.isAncestor(desc,anc)){
+//     if (verbose){
+//       Rcout << "Node " << desc << " is not a descendant of " << anc << std::endl;
+//     }
+//     return false;
+//   }
+//   
+//   // Get parents of the potential descendant node
+//   NumericVector parent_set = g_ref.getParents(desc);
+//   NumericVector::iterator parent=parent_set.begin();
+//   for (;parent<parent_set.end();++parent){
+//     // Check if there is a parent node in the same target neighborhood
+//     // as the descendant node which is also a descendant of the ancestral node
+//     if (g_ref.isAncestor(*parent,anc) && 
+//         sharedNeighborhood(reference,targets,*parent,desc,verbose)){
+//       if (verbose){
+//         Rcout << "Node " << *parent << " is a parent of " << desc;
+//         Rcout << " and is in the same target neighborhood, while also being a ";
+//         Rcout << "descendant of " << anc << std::endl;
+//       }
+//       return false;
+//     }
+//   }
+//   
+//   NumericVector children_set = g_ref.getChildren(anc);
+//   NumericVector::iterator child=children_set.begin();
+//   for (;child<children_set.end();++child){
+//     // Check if there is a parent node in the same target neighborhood
+//     // as the descendant node which is also a descendant of the ancestral node
+//     if (g_ref.isAncestor(desc,*child) && 
+//         sharedNeighborhood(reference,targets,*child,anc,verbose)){
+//       if (verbose){
+//         Rcout << "Node " << *child << " is a child of " << anc;
+//         Rcout << " and is in the same target neighborhood, while also being an ";
+//         Rcout << "ancestor of " << desc << std::endl;
+//       }
+//       return false;
+//     }
+//   }
+//   // There are no mediating nodes in the path from anc to desc
+//   // which share the same target neighborhood as desc
+//   if (verbose){
+//     Rcout << "There is an unmediated ancestral path between " << anc << " and " << desc << std::endl;
+//   }
+//   return true;
+//   
+// }
 
 // // [[Rcpp::export]]
 // List interNeighborhoodEdgeMetrics(NumericMatrix est,NumericMatrix reference,

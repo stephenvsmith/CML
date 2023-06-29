@@ -27,7 +27,7 @@ NumericMatrix checkGetVStructures(NumericMatrix td,arma::mat df,
   SNL snl(td,df,t,nodes_interest,names,3,0.02,true);
   snl.getSkeletonTarget(t(0));
   int rule_0_used = snl.getVStructures();
-  Rcout << "Rules Used (0) " << rule_0_used;
+  Rcout << "Rules Used (0) " << rule_0_used << std::endl;
   return snl.getAmat();
 }
 
@@ -57,7 +57,7 @@ NumericMatrix checkGetVStructuresPop(NumericMatrix td,
   SNL snl(td,t,nodes_interest,names,3,true);
   snl.getSkeletonTarget(t(0));
   int rule_0_used = snl.getVStructures();
-  Rcout << "Rules Used (0) " << rule_0_used;
+  Rcout << "Rules Used (0) " << rule_0_used << std::endl;
   return snl.getAmat();
 }
 
@@ -76,7 +76,7 @@ NumericMatrix checkRule1(NumericMatrix td,
   } else {
     Rcout << "There was a change\n";
   }
-  Rcout << "Rules Used (1) " << snl.getRulesUsed()(1);
+  Rcout << "Rules Used (1) " << snl.getRulesUsed()(1) << std::endl;
   return snl.getAmat();
 }
 
@@ -95,7 +95,7 @@ NumericMatrix checkRule2(NumericMatrix td,
   } else {
     Rcout << "There was a change\n";
   }
-  Rcout << "Rules Used (2) " << snl.getRulesUsed()(2);
+  Rcout << "Rules Used (2) " << snl.getRulesUsed()(2) << std::endl;
   return snl.getAmat();
 }
 
@@ -114,7 +114,7 @@ NumericMatrix checkRule3(NumericMatrix td,
   } else {
     Rcout << "There was a change\n";
   }
-  Rcout << "Rules Used (3) " << snl.getRulesUsed()(3);
+  Rcout << "Rules Used (3) " << snl.getRulesUsed()(3) << std::endl;
   return snl.getAmat();
 }
 
@@ -133,7 +133,7 @@ NumericMatrix checkRule4(NumericMatrix td,
   } else {
     Rcout << "There was a change\n";
   }
-  Rcout << "Rules Used (4) " << snl.getRulesUsed()(4);
+  Rcout << "Rules Used (4) " << snl.getRulesUsed()(4) << std::endl;
   return snl.getAmat();
 }
 

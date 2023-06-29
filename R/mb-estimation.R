@@ -95,6 +95,303 @@ getTotalMBTests <- function(mbList){
   })))
 }
 
+# Helper Functions (Mult. MBs) --------------------------------------------
+
+# Removes duplicate target nodes
+checkUniqueTargets <- function(targets){
+  if (any(duplicated(targets))){
+    warning("Duplicate targets inputted. Removing duplicates.")
+    targets <- unique(targets)
+  }
+  return(targets)
+}
+
+# Creates a single list for relevant MB recovery parameters
+createParamList <- function(targets,dataset,threshold,lmax,method,test,verbose){
+  return(list(
+    "targets"=targets,
+    "data"=dataset,
+    "threshold"=threshold,
+    "lmax"=lmax,
+    "method"=method,
+    "test"=test,
+    "verbose"=verbose
+  ))
+}
+
+#' This function is a helper for `constructFinalMBList` that obtains 
+#' first-order neighbor Markov Blankets and the number of tests required to
+#' obtain all the neighborhoods.
+getFirstOrderNeighborMBs <- function(params){
+  # Run `getMB` for each first-order neighbor of any target node
+  first_order_mbs <- lapply(params$first_order_neighbors,
+                            function(t) 
+                              getMB(t,params$data,
+                                    params$threshold,
+                                    params$lmax,
+                                    params$method,
+                                    params$test,
+                                    params$verbose))
+  names(first_order_mbs) <- as.character(params$first_order_neighbors)
+  # Number of tests required for previous step
+  second_order_nbrs_tests <- sum(unlist(
+    lapply(first_order_mbs,
+           function(x) return(x[["n_tests"]]))
+  ))
+  return(list(
+    "f_o_mbs"=first_order_mbs,
+    "s_o_tests"=second_order_nbrs_tests
+  ))
+}
+
+# This function provides us with the set of second-order neighbors of a
+# target node, given a list with the target MBs and another list with 
+# first-order neighbor MBs. Purpose of the function is to help identify spouses
+# which is why there is the additional `pairs_checked` argument 
+getSecondOrderNeighbors <- function(target, # integer of target node
+                                    pc_set, # parents-children set of target
+                                    target_mbs, # P-C sets of all targets
+                                    first_order_mbs, # P-C sets of first-order neighbors
+                                    pairs_checked){ # removes nodes which we have already checked as a spouse of target
+  # The union of P-C sets of the parents and children of target
+  second_order_neighbors <- unique(unlist(
+    lapply(pc_set,function(x){
+      if (as.character(x) %in% names(target_mbs)){
+        return(target_mbs[[as.character(x)]][["mb"]])
+      } else {
+        return(first_order_mbs[[as.character(x)]][["mb"]])
+      }
+    })
+  ))
+  # To obtain second-order neighbors, remove target and its parents and children
+  # from the set obtained in the previous step
+  second_order_neighbors <- sort(setdiff(second_order_neighbors,
+                                         c(target,pc_set)))
+  # Remove any combinations of target and any of its second-order neighbors
+  # which have already been checked for a spousal connection
+  already_checked <- which(pairs_checked[target,]==1)
+  second_order_neighbors <- setdiff(second_order_neighbors,already_checked)
+  return(second_order_neighbors)
+}
+
+
+#' This is a helper function for `getAllMBs` to find all of the spouses
+#' for algorithms such as MMPC and SES.
+#' Any previously identified second-order neighbor could be a spouse of
+#' a target node if they are conditionally dependent on the target node
+#' given the P-C set
+captureSpouses <- function(params){
+  # Prepare the inputs for the conditional independence test
+  C <- cor(params$data)
+  n <- nrow(params$data)
+  p <- ncol(params$data)
+  params$spouses_num_tests <- 0
+  params$spouses_added <- numeric(length = 0)
+  params$spouse_mbs <- list()
+  # Keep track of which pairs of nodes have been checked to avoid double checking
+  pairs_checked <- matrix(0,nrow = p,ncol = p)
+  
+  # For each target, identify the P-C set and second-order nbrs
+  for (target in params$targets){
+    # All of the parent and children of target
+    pc_set <- params$target_mbs[[as.character(target)]][["mb"]]
+    second_order_neighbors <- getSecondOrderNeighbors(target,
+                                                      pc_set,
+                                                      params$target_mbs,
+                                                      params$first_order_mbs,
+                                                      pairs_checked)
+    # Test conditional independence of target and second-order neighbor
+    # given the P-C set. If there is dependence, then we have a spouse.
+    if (length(second_order_neighbors>0)){
+      lapply(second_order_neighbors,function(x){
+        if (params$verbose){
+          cat("Checking if node",x,"is a spouse of target",target,"...")
+        }
+        test <- condIndTest(C,target-1,x-1,pc_set-1,n,params$threshold)
+        params$spouses_num_tests <<- params$spouses_num_tests + 1
+        pairs_checked[target,x] <<- pairs_checked[x,target] <<- 1
+        if (!test$result){
+          # We reject H_0, and conclude in favor of conditional dependence
+          # Add x to the Markov Blanket set
+          if (params$verbose){
+            cat(" yes. Adding",x,"to MB of",target,". ")
+          }
+          params$target_mbs[[as.character(target)]][["mb"]] <<- sort(c(
+            params$target_mbs[[as.character(target)]][["mb"]],x
+          ))
+          # Situation where x (the new spouse) is another target node
+          if (x %in% params$targets){
+            if (params$verbose){
+              cat("Adding",target,"to MB of",
+                  x,"(another target node).")
+            }
+            params$target_mbs[[as.character(x)]][["mb"]] <<- sort(c(
+              params$target_mbs[[as.character(x)]][["mb"]],target
+            ))
+          } else if (as.character(x) %in% names(params$first_order_mbs)){
+            # x is a first-order neighbor for another target
+            if (params$verbose){
+              cat("Adding",target,"to MB of",
+                  x,"(first-order neighbor).")
+            }
+            params$first_order_mbs[[as.character(x)]][["mb"]] <<- sort(c(
+              params$first_order_mbs[[as.character(x)]][["mb"]],target
+            ))
+          } else {
+            # otherwise, x was previously identified as exclusively a second-order 
+            # neighbor 
+            if (params$verbose){
+              cat(x,"is a newly discovered 1st-order neighbor",
+                  "(was previously 2nd-order).")
+            }
+            # We have to track which spouses are newly added, because
+            # we must estimate their Markov Blankets as well
+            params$spouses_added <<- c(params$spouses_added,x)
+            # Add target to MB set for node x in special spouse_mb list
+            # Additional MB identification will take place later
+            params$spouse_mbs[[as.character(x)]] <<- unique(c(
+              target,params$first_order_mbs[[as.character(x)]]
+            ))
+          }
+        } else { # Accept H_0
+          if (params$verbose){
+            cat(" no")
+          }
+        }
+        if (params$verbose){
+          cat("\n")
+        }
+      })
+    }
+  }
+  return(params)
+}
+
+augmentMBAlgo <- function(params){
+  if (params$method %in% c("MMPC","SES")){
+    # Find spouses using an additional cond. indep. test
+    params <- captureSpouses(params)
+    if (length(params$spouses_added)>0){
+      # These are nodes for which we have not yet estimated MB
+      spouses_mb_list <- lapply(params$spouses_added,function(t){
+        mb_list <- getMB(t,params$data,
+                         params$threshold,
+                         params$lmax,
+                         params$method,
+                         params$test,
+                         params$verbose)
+        if (params$verbose){
+          cat("Adding target nodes to spouse's MB List:",
+              paste(params$spouse_mbs[[as.character(t)]],collapse = ", "),
+              "\n")
+        }
+        mb_list$mb <- sort(unique(c(mb_list$mb,
+                                    params$spouse_mbs[[as.character(t)]])))
+        return(mb_list)
+      })
+      names(spouses_mb_list) <- as.character(params$spouses_added)
+      # Add spouses to first-order neighbors
+      params$first_order_mbs <- c(params$first_order_mbs,spouses_mb_list)
+    }
+  }
+  # Combine first-order MBs and second-order MBs in one list
+  params$final_mb_list <- c(params$target_mbs,params$first_order_mbs)
+  return(params)
+}
+
+
+# This function takes the results from `getMB` being run on all of the targets
+# and does the following:
+# 1. Obtains the Markov Blankets for each first-order neighbor
+# 2a. Captures spouse variables if necessary
+# 2b. Finds Markov Blankets for any newly identified first-order neighbors
+# 3. Combines all MBs into one list and returns it along with all the tests and the total time
+
+# param includes:
+# targets,dataset,threshold,lmax,method,test,verbose
+# AND the mbs of the targets
+constructFinalMBList <- function(params){
+  
+  ### SETUP ###
+  
+  # Capture number of conditional independence tests for second-order neighbors
+  second_order_nbrs_tests <- 0
+  # Capture number of conditional independence tests for capturing spouses
+  spouse_num_tests <- 0
+  # A vector to identify only the first-order neighbors
+  params$first_order_neighbors <- unique(
+    setdiff(
+      getAllMBNodes(params$target_mbs),params$targets
+    )
+  )
+  # Number of tests for first-order neighbor identification
+  first_order_nbrs_tests <- getTotalMBTests(params$target_mbs)
+  
+  ### MB RECOVERY FOR FIRST-ORDER NEIGHBORS ### 
+  
+  # Apply MB algorithm again to obtain MBs of first-order neighbors
+  if (length(params$first_order_neighbors)>0){
+    f_o_list <- getFirstOrderNeighborMBs(params)
+    params$first_order_mbs <- f_o_list$f_o_mbs
+    second_order_nbrs_tests <- f_o_list$s_o_tests
+    # For certain algorithms, obtain spouses using additional independence test
+    params <- augmentMBAlgo(params)
+  } else {
+    params$final_mb_list <- params$target_mbs
+    names(params$final_mb_list) <- as.character(params$targets)
+    second_order_nbrs_tests <- 0
+    params$spouse_num_tests <- 0
+  }
+  mb_time <- sum(unlist(
+    lapply(params$final_mb_list,function(x) return(x[["time"]]))
+  ))
+  return(list(
+    "mb_list"=params$final_mb_list,
+    "num_tests"=params$spouses_num_tests+first_order_nbrs_tests+second_order_nbrs_tests, # NEED TO FIX
+    "mb_time"=getTotalMBTime(params$final_mb_list)))
+}
+
+
+# Multiple Target MB Recovery ---------------------------------------------
+
+#' Estimate Markov Blankets of a vector of target nodes
+#' 
+#' `getAllMBs()` applies Markov Blanket algorithms to a vector of target nodes and
+#' their first-order neighbors to obtain the full list of neighborhoods necessary to run the 
+#' local FCI algorithm.
+#' 
+#' @param targets a vector of integers which will identify the target nodes of our algorithm
+#' @inheritParams getMB
+#' @export
+getAllMBs <- function(targets,dataset,threshold=0.01,lmax=3,
+                      method="MMPC",test="testIndFisher",
+                      verbose=TRUE){
+  start <- Sys.time()
+  # Ensure target vector is without duplicates
+  targets <- checkUniqueTargets(targets)
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  
+  # Find the MBs for the target nodes
+  params$target_mbs <- lapply(targets,
+                              function(t) 
+                                getMB(t,dataset,threshold,lmax,
+                                      method,test,verbose)
+  )
+  names(params$target_mbs) <- as.character(targets)
+  # Find the MBs for first-order neighbors and identify spouses 
+  # (along with their neighborhoods if necessary)
+  result <- constructFinalMBList(params)
+  stop <- Sys.time()
+  diff <- stop - start
+  units(diff) <- "secs"
+  result$time <- as.numeric(diff)
+  
+  return(result)
+}
+
+
+# MB Recovery Storage -----------------------------------------------------
+
 #' Generate Markov Blanket Inclusion Matrix from List
 #' 
 #' `getEstInitialDAG()` prepares the estimated neighborhoods for use in our local algorithms by storing them
@@ -143,294 +440,4 @@ getEstInitialDAG <- function(mbList,p,verbose=FALSE){
         "\n\n")
   }
   return(adj)
-}
-
-# Helper Functions (Mult. MBs) --------------------------------------------
-
-checkUniqueTargets <- function(targets){
-  if (any(duplicated(targets))){
-    warning("Duplicate targets inputted. Removing duplicates.")
-    targets <- unique(targets)
-  }
-  return(targets)
-}
-
-createParamList <- function(targets,dataset,threshold,lmax,method,test,verbose){
-  return(list(
-    "targets"=targets,
-    "data"=dataset,
-    "threshold"=threshold,
-    "lmax"=lmax,
-    "method"=method,
-    "test"=test,
-    "verbose"=verbose
-  ))
-}
-
-#' This function is a helper for `constructFinalMBList` that obtains 
-#' first-order neighbor Markov Blankets and the number of tests required to
-#' obtain all the neighborhoods.
-getFirstOrderNeighborMBs <- function(params){
-  # Run `getMB` for each first-order neighbor of any target node
-  first_order_mbs <- lapply(params$first_order_neighbors,
-                            function(t) 
-                              getMB(t,params$dataset,
-                                    params$threshold,
-                                    params$lmax,
-                                    params$method,
-                                    params$test,
-                                    params$verbose))
-  names(first_order_mbs) <- as.character(params$first_order_neighbors)
-  # Number of tests required for previous step
-  second_order_nbrs_tests <- sum(unlist(
-    lapply(first_order_mbs,
-           function(x) return(x[["n_tests"]]))
-  ))
-  return(list(
-    "f_o_mbs"=first_order_mbs,
-    "s_o_tests"=second_order_nbrs_tests
-  ))
-}
-
-# This function provides us with the set of second-order neighbors of a
-# target node, given a list with the target MBs and another list with 
-# first-order neighbor MBs. Purpose of the function is to help identify spouses
-# which is why there is the additional `pairs_checked` argument 
-getSecondOrderNeighbors <- function(target, # integer of target node
-                                    pc_set, # parents-children set of target
-                                    target_mbs, # P-C sets of all targets
-                                    first_order_mbs, # P-C sets of first-order neighbors
-                                    pairs_checked){ # removes nodes which we have already checked as a spouse of target
-  # The union of P-C sets of the parents and children of target
-  second_order_neighbors <- unique(unlist(
-    lapply(pc_set,function(x){
-      if (as.character(x) %in% names(target_mbs)){
-        return(target_mbs[[as.character(x)]][["mb"]])
-      } else {
-        return(first_order_mbs[[as.character(x)]][["mb"]])
-      }
-    })
-  ))
-  # To obtain second-order neighbors, remove target and its parents and children
-  # from the set obtained in the previous step
-  second_order_neighbors_precheck <- sort(setdiff(second_order_neighbors,
-                                                  c(target,pc_set)))
-  second_order_neighbors <- second_order_neighbors_precheck
-  # Remove any combinations of target and any of its second-order neighbors
-  # which have already been checked for a spousal connection
-  already_checked <- which(pairs_checked[target,]==1)
-  second_order_neighbors <- setdiff(second_order_neighbors,already_checked)
-  return(second_order_neighbors)
-}
-
-
-#' This is a helper function for `getAllMBs` to find all of the spouses
-#' for algorithms such as MMPC and SES.
-#' Any previously identified second-order neighbor could be a spouse of
-#' a target node if they are conditionally dependent on the target node
-#' given the P-C set
-captureSpouses <- function(params){
-  
-  # Prepare the inputs for the conditional independence test
-  C <- cor(params$dataset)
-  n <- nrow(params$dataset)
-  p <- ncol(params$dataset)
-  num_tests <- 0
-  spouses_added <- c()
-  spouse_mbs <- list()
-  # Keep track of which pairs of nodes have been checked
-  pairs_checked <- matrix(0,nrow = p,ncol = p)
-  
-  # For each target, identify the P-C set and second-order nbrs
-  for (target in params$targets){
-    # All of the parent and children of target
-    pc_set <- params$target_mbs[[as.character(target)]][["mb"]]
-    second_order_neighbors <- getSecondOrderNeighbors(target,
-                                                      params$pc_set,
-                                                      target_mbs,
-                                                      first_order_mbs,
-                                                      pairs_checked)
-    # Test conditional independence of target and second-order neighbor
-    # given the P-C set. If there is dependence, then we have a spouse.
-    if (length(second_order_neighbors>0)){
-      lapply(second_order_neighbors,function(x){
-        if (verbose){
-          cat("Checking if node",x,"is a spouse of target",target,"...")
-        }
-        test <- condIndTest(C,target-1,x-1,pc_set-1,n,threshold)
-        num_tests <<- num_tests + 1
-        pairs_checked[target,x] <<- pairs_checked[x,target] <<- 1
-        if (!test$result){
-          # We reject H_0, and conclude in favor of conditional dependence
-          # Add x to the Markov Blanket set
-          if (verbose){
-            cat(" yes. Adding",x,"to MB of",target,". ")
-          }
-          target_mbs[[as.character(target)]][["mb"]] <<- sort(c(
-            target_mbs[[as.character(target)]][["mb"]],x
-          ))
-          # Situation where x (the new spouse) is another target node
-          if (x %in% targets){
-            if (verbose){
-              cat("Adding",target,"to MB of",
-                  x,"(another target node).")
-            }
-            target_mbs[[as.character(x)]][["mb"]] <<- sort(c(
-              target_mbs[[as.character(x)]][["mb"]],target
-            ))
-          } else if (as.character(x) %in% names(first_order_mbs)){
-            # x is a first-order neighbor for another target
-            if (verbose){
-              cat("Adding",target,"to MB of",
-                  x,"(first-order neighbor).")
-            }
-            first_order_mbs[[as.character(x)]][["mb"]] <<- sort(c(
-              first_order_mbs[[as.character(x)]][["mb"]],target
-            ))
-          } else {
-            # otherwise, x was previously identified as exclusively a second-order 
-            # neighbor 
-            if (verbose){
-              cat(x,"is a newly discovered 1st-order neighbor",
-                  "(was previously 2nd-order).")
-            }
-            # We have to track which spouses are newly added, because
-            # we must estimate their Markov Blankets as well
-            spouses_added <<- c(spouses_added,x)
-            # Add target to MB set for node x in special spouse_mb list
-            # Additional MB identification will take place later
-            spouse_mbs[[as.character(x)]] <<- unique(c(
-              target,first_order_mbs[[as.character(x)]]
-            ))
-          }
-        } else { # Accept H_0
-          if (verbose){
-            cat(" no")
-          }
-        }
-        if (verbose){
-          cat("\n")
-        }
-      })
-    }
-  }
-  return(list(
-    "target_mbs"=target_mbs,
-    "f_o_mbs"=first_order_mbs,
-    "spouse_mbs"=spouse_mbs,
-    "num_tests"=num_tests,
-    "spouses_added"=spouses_added))
-}
-
-augmentPCAlgo <- function(params){
-  if (params$method %in% c("MMPC","SES")){
-    # Find spouses using an additional cond. indep. test
-    params <- captureSpouses(params)
-
-    if (length(spouses_added)>0){
-      # These are nodes for which we have not yet estimated MB
-      spouses_mb_list <- lapply(spouses_added,function(t){
-        mb_list <- getMB(t,dataset,threshold,lmax,method,test,verbose)
-        if (verbose){
-          cat("Adding target nodes to spouse's MB List:",
-              paste(spouse_mbs[[as.character(t)]],collapse = ", "),
-              "\n")
-        }
-        mb_list$mb <- sort(c(mb_list$mb,
-                             spouse_mbs[[as.character(t)]]))
-        return(mb_list)
-      })
-      names(spouses_mb_list) <- as.character(spouses_added)
-      first_order_mbs <- c(first_order_mbs,spouses_mb_list)
-    }
-  }
-  # Combine first-order MBs and second-order MBs in one list
-  final_list <- c(target_mbs,first_order_mbs)
-}
-
-
-# This function takes the results from `getMB` being run on all of the targets
-# and does the following:
-# 1. Obtains the Markov Blankets for each first-order neighbor
-# 2a. Captures spouse variables if necessary
-# 2b. Finds Markov Blankets for any newly identified first-order neighbors
-# 3. Combines all MBs into one list and returns it along with all the tests and the total time
-
-# param includes:
-# targets,dataset,threshold,lmax,method,test,verbose
-# AND the mbs of the targets
-constructFinalMBList <- function(params){
-  
-  # Setup -------------------------------------------------------------------
-  
-  # Capture number of conditional independence tests for second-order neighbors
-  second_order_nbrs_tests <- 0
-  # Capture number of conditional independence tests for capturing spouses
-  spouse_num_tests <- 0
-  # A vector to identify only the first-order neighbors
-  params$first_order_neighbors <- unique(
-    setdiff(
-      getAllMBNodes(params$target_mbs),targets
-    )
-  )
-  # Number of tests for first-order neighbor identification
-  first_order_nbrs_tests <- getTotalMBTests(params$target_mbs)
-  
-  # First-order neighbor MB/P-C recovery ------------------------------------
-  
-  # Apply MB algorithm again to obtain MBs of first-order neighbors
-  if (length(first_order_neighbors)>0){
-    f_o_list <- getFirstOrderNeighborMBs(params)
-    params$first_order_mbs <- f_o_list$f_o_mbs
-    second_order_nbrs_tests <- f_o_list$s_o_tests
-    # For certain algorithms, obtain spouses using additional independence test
-    params <- augmentPCAlgo(params)
-  } else {
-    final_list <- target_mbs
-    names(final_list) <- as.character(targets)
-  }
-  mb_time <- sum(unlist(
-    lapply(final_list,function(x) return(x[["time"]]))
-  ))
-  return(list(
-    "mb_list"=getTotalMBTime(final_list),
-    "num_tests"=spouse_num_tests+first_order_nbrs_tests+second_order_nbrs_tests,
-    "mb_time"=mb_time))
-}
-
-# Multiple Target MBs -----------------------------------------------------
-
-#' Estimate Markov Blankets of a vector of target nodes
-#' 
-#' `getAllMBs()` applies Markov Blanket algorithms to a vector of target nodes and
-#' their first-order neighbors to obtain the full list of neighborhoods necessary to run the 
-#' local FCI algorithm.
-#' 
-#' @param targets a vector of integers which will identify the target nodes of our algorithm
-#' @inheritParams getMB
-#' @export
-getAllMBs <- function(targets,dataset,threshold=0.01,lmax=3,
-                      method="MMPC",test="testIndFisher",
-                      verbose=TRUE){
-  start <- Sys.time()
-  # Ensure target vector is without duplicates
-  targets <- checkUniqueTargets(targets)
-  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
-  
-  # Find the MBs for the target nodes
-  params$target_mbs <- lapply(targets,
-                              function(t) 
-                                getMB(t,dataset,threshold,lmax,
-                                      method,test,verbose)
-  )
-  names(params$target_mbs) <- as.character(targets)
-  # Find the MBs for first-order neighbors and identify spouses 
-  # (along with their neighborhoods if necessary)
-  result <- constructFinalMBList(params)
-  stop <- Sys.time()
-  diff <- stop - start
-  units(diff) <- "secs"
-  result$time <- as.numeric(diff)
-  
-  return(result)
 }

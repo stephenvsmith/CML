@@ -1003,6 +1003,7 @@ void CML::checkNotation(){
       if ((G_ij==0 || G_ij==1) && G_ji>1){
         warning("Ancestral marking mixed with neighborhood marking.");
       } else if ((G_ji==0 || G_ji==1) && G_ij>1){
+        Rcout << "At the place i wanted\n";
         warning("Ancestral marking mixed with neighborhood marking.");
       }
     }

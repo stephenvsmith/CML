@@ -9,6 +9,7 @@ Description: Causal discovery of the local structure around user-selected target
 License: GPL-3
 Imports: 
     MXM,
+    bnlearn,
     Rcpp (>= 1.0.8)
 LinkingTo: Rcpp, RcppArmadillo
 Config/testthat/edition: 3

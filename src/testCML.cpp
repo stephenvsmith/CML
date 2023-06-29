@@ -4,7 +4,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 void initializeCML(NumericMatrix td,arma::mat df,NumericVector t,
-                        NumericVector nodes_interest,StringVector names){
+                   NumericVector nodes_interest,StringVector names){
   CML cml(td,df,t,nodes_interest,names,3,0.01,true);
   Rcout << "\n\n";
   cml.print_elements();
@@ -12,10 +12,35 @@ void initializeCML(NumericMatrix td,arma::mat df,NumericVector t,
 
 // [[Rcpp::export]]
 void initializeCMLPop(NumericMatrix td,NumericVector t,
-                           NumericVector nodes_interest,StringVector names){
+                      NumericVector nodes_interest,StringVector names){
   CML cml(td,t,nodes_interest,names,3,true);
   Rcout << "\n\n";
   cml.print_elements();
+}
+
+// [[Rcpp::export]]
+int getSizeCML(NumericMatrix td,arma::mat df,NumericVector t,
+               NumericVector nodes_interest,StringVector names){
+  CML cml(td,df,t,nodes_interest,names,3,0.01,true);
+  return cml.getSize();
+}
+
+// [[Rcpp::export]]
+List setSCML(NumericMatrix td,arma::mat df,NumericVector t,
+             NumericVector nodes_interest,StringVector names,
+             size_t i,size_t j,NumericVector k){
+  CML cml(td,df,t,nodes_interest,names,3,0.01,true);
+  cml.setS(i,j,k);
+  return cml.getSepSetList();
+}
+
+// [[Rcpp::export]]
+void setVerboseCML(NumericMatrix td,arma::mat df,NumericVector t,
+                   NumericVector nodes_interest,StringVector names){
+  CML cml(td,df,t,nodes_interest,names,3,0.01,false);
+  Rcout << "CML Verbose: " << cml.getVerbose() << std::endl;
+  cml.setVerboseTrue();
+  Rcout << "CML Verbose: " << cml.getVerbose() << std::endl;
 }
 
 // [[Rcpp::export]]
@@ -120,8 +145,8 @@ double checkSeparationTest(NumericMatrix td,arma::mat df,NumericVector t,
 
 // [[Rcpp::export]]
 NumericMatrix checkCMLSummary(NumericMatrix td,arma::mat df,
-                                   NumericVector targets,
-                                   NumericVector nodes_interest,StringVector names){
+                              NumericVector targets,
+                              NumericVector nodes_interest,StringVector names){
   // Instantiate the Local FCI object
   CML cml(td,df,targets,nodes_interest,names,3,0.05,false);
   cml.getSkeletonTotal();
@@ -145,8 +170,8 @@ NumericMatrix checkCMLSummary(NumericMatrix td,arma::mat df,
 
 // [[Rcpp::export]]
 NumericMatrix checkCMLSummaryPop(NumericMatrix td,
-                                      NumericVector targets,
-                                      NumericVector nodes_interest,StringVector names){
+                                 NumericVector targets,
+                                 NumericVector nodes_interest,StringVector names){
   // Instantiate the Local FCI object
   CML cml(td,targets,nodes_interest,names,3,false);
   cml.getSkeletonTotal();

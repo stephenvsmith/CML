@@ -40,7 +40,7 @@ public:
   // Every algorithm must define their own target neighborhood skeleton algorithm
   virtual void getSkeletonTarget(const size_t &t) = 0;
   
-  virtual int getVStructures(); // tested (Local PC)
+  virtual int getVStructures(); // tested (SNL)
   
   // Accessors 
   // Implicitly, but not explicitly, tested in most cases. 
@@ -86,6 +86,10 @@ public:
   void setVerboseTrue(){
     verbose = true;
     C_tilde->setVerboseTrue();
+  }
+  
+  bool getVerbose(){
+    return verbose;
   }
   
 protected:

@@ -338,6 +338,53 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// getSizeCML
+int getSizeCML(NumericMatrix td, arma::mat df, NumericVector t, NumericVector nodes_interest, StringVector names);
+RcppExport SEXP _CML_getSizeCML(SEXP tdSEXP, SEXP dfSEXP, SEXP tSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type td(tdSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nodes_interest(nodes_interestSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSizeCML(td, df, t, nodes_interest, names));
+    return rcpp_result_gen;
+END_RCPP
+}
+// setSCML
+List setSCML(NumericMatrix td, arma::mat df, NumericVector t, NumericVector nodes_interest, StringVector names, size_t i, size_t j, NumericVector k);
+RcppExport SEXP _CML_setSCML(SEXP tdSEXP, SEXP dfSEXP, SEXP tSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP iSEXP, SEXP jSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type td(tdSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nodes_interest(nodes_interestSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type names(namesSEXP);
+    Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
+    Rcpp::traits::input_parameter< size_t >::type j(jSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(setSCML(td, df, t, nodes_interest, names, i, j, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// setVerboseCML
+void setVerboseCML(NumericMatrix td, arma::mat df, NumericVector t, NumericVector nodes_interest, StringVector names);
+RcppExport SEXP _CML_setVerboseCML(SEXP tdSEXP, SEXP dfSEXP, SEXP tSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type td(tdSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nodes_interest(nodes_interestSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type names(namesSEXP);
+    setVerboseCML(td, df, t, nodes_interest, names);
+    return R_NilValue;
+END_RCPP
+}
 // checkSkeletonTotal
 NumericMatrix checkSkeletonTotal(NumericMatrix td, arma::mat df, NumericVector t, NumericVector nodes_interest, StringVector names);
 RcppExport SEXP _CML_checkSkeletonTotal(SEXP tdSEXP, SEXP dfSEXP, SEXP tSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP) {
@@ -1662,6 +1709,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CML_condIndTestPop", (DL_FUNC) &_CML_condIndTestPop, 4},
     {"_CML_initializeCML", (DL_FUNC) &_CML_initializeCML, 5},
     {"_CML_initializeCMLPop", (DL_FUNC) &_CML_initializeCMLPop, 4},
+    {"_CML_getSizeCML", (DL_FUNC) &_CML_getSizeCML, 5},
+    {"_CML_setSCML", (DL_FUNC) &_CML_setSCML, 8},
+    {"_CML_setVerboseCML", (DL_FUNC) &_CML_setVerboseCML, 5},
     {"_CML_checkSkeletonTotal", (DL_FUNC) &_CML_checkSkeletonTotal, 5},
     {"_CML_checkSkeletonTotalPop", (DL_FUNC) &_CML_checkSkeletonTotalPop, 4},
     {"_CML_checkVStruct", (DL_FUNC) &_CML_checkVStruct, 5},

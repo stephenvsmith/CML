@@ -52,9 +52,9 @@ test_that("Verbose arguments",{
 })
 
 
+# Additional Setup --------------------------------------------------------
 
-# Getting second-order neighbors ------------------------------------------
-
+# List of first-order neighbors
 connections <- list(
   "asia"=c("tub"),
   "tub"=c("asia","lung","either"),
@@ -66,6 +66,7 @@ connections <- list(
   "xray"=c("either")
 )
 
+# parent-child list
 pc_set_names <- list(
   "asia"=c("tub"),
   "tub"=c("asia","either"),
@@ -77,6 +78,7 @@ pc_set_names <- list(
   "xray"=c("either")
 )
 
+# List of second-order neighbors using P-C sets
 order2neighbors <- list(
   "asia"=setdiff(pc_set_names[["tub"]],"asia"),
   "tub"=setdiff(unique(unlist(pc_set_names[pc_set_names[["tub"]]])),"tub"),
@@ -88,6 +90,7 @@ order2neighbors <- list(
   "xray"=setdiff(unique(unlist(pc_set_names[pc_set_names[["xray"]]])),"xray")
 )
 
+# Numbered version of P-C set list
 pc_set <- lapply(node_names,function(n){
   rm_names <- sapply(pc_set_names[[n]],function(nm){
     res <- which(nm==node_names)
@@ -98,6 +101,9 @@ pc_set <- lapply(node_names,function(n){
   return(new_pc_set_n)
 })
 names(pc_set) <- as.character(1:8)
+
+
+# Get Second Order Neighbors ----------------------------------------------
 
 test_that("Second-order neighbors",{
   target <- 6 # either
@@ -146,21 +152,36 @@ test_that("Second-order neighbors",{
 test_that("Test spouse recovery function (one target)",{
   # should add bronc as a spouse
   targets <- 6
-  expect_snapshot_output(captureSpouses(asiadf,targets,
-                                        pc_set[targets],
-                                        pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
-                                        threshold = 0.01,
-                                        TRUE))
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- pc_set[targets]
+  params$first_order_mbs <- pc_set[setdiff(unique(unlist(pc_set[targets])),targets)]
+  expect_snapshot_output(res <- captureSpouses(params))
+  vars <- setdiff(names(res),"data")
+  expect_snapshot_output(res[vars])
 })
 
-test_that("Test spouse recovery function (two targets) 1",{
+test_that("Test spouse recovery function (two targets)",{
   # should add bronc as a spouse
   targets <- c(6,8)
-  expect_snapshot_output(captureSpouses(asiadf,targets,
-                                        pc_set[targets],
-                                        pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
-                                        threshold = 0.01,
-                                        TRUE))
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- pc_set[targets]
+  params$first_order_mbs <- pc_set[setdiff(unique(unlist(pc_set[targets])),targets)]
+  expect_snapshot_output(res <- captureSpouses(params))
+  vars <- setdiff(names(res),"data")
+  expect_snapshot_output(res[vars])
 })
 
 test_that("Test spouse recovery function (multiple targets)",{
@@ -171,11 +192,17 @@ test_that("Test spouse recovery function (multiple targets)",{
   expect_false(2 %in% pc_set[['4']][['mb']])
   expect_false(6 %in% pc_set[['5']][['mb']])
   expect_false(5 %in% pc_set[['6']][['mb']])
-  expect_snapshot_output(results_spouse <- captureSpouses(asiadf,targets,
-                                                          pc_set[targets],
-                                                          pc_set[setdiff(unique(unlist(pc_set[targets])),targets)],
-                                                          threshold = 0.01,
-                                                          TRUE))
+  
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- pc_set[targets]
+  params$first_order_mbs <- pc_set[setdiff(unique(unlist(pc_set[targets])),targets)]
+  expect_snapshot_output(results_spouse <- captureSpouses(params))
   expect_true(4 %in% results_spouse$target_mbs[['2']][['mb']])
   expect_true(2 %in% results_spouse$target_mbs[['4']][['mb']])
   expect_true(6 %in% results_spouse$target_mbs[['5']][['mb']])
@@ -187,6 +214,226 @@ test_that("Test spouse recovery function (multiple targets)",{
   expect_equal(results_spouse$target_mbs[['6']][['mb']],sort(c(pc_set[['6']][['mb']],5)))
   
   
+})
+
+test_that("Go through each step of `getAllMBs`",{
+  targets <- c(1,3,5,5)
+  expect_warning(new_targets<-checkUniqueTargets(targets))
+  expect_equal(new_targets,c(1,3,5))
+  
+  
+  targets <- new_targets
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  expect_snapshot_output(params)
+  
+  params$target_mbs <- lapply(targets,function(t){
+    getMB(t,dataset,threshold,lmax,method,test,verbose)
+  })
+  names(params$target_mbs) <- as.character(targets)
+  expect_snapshot_output(
+    for (i in names(params$target_mbs)){
+      cat("MB(",i,"): ",paste(params$target_mbs[[i]]$mb,collapse = " "),"\n",sep = "")
+    }
+  )
+  
+  params$first_order_neighbors <- unique(setdiff(getAllMBNodes(params$target_mbs),targets))
+  expect_equal(params$first_order_neighbors,c(2,4,8))
+  
+  first_order_mbs <- lapply(params$first_order_neighbors,
+                            function(t) 
+                              getMB(t,
+                                    params$data,
+                                    params$threshold,
+                                    params$lmax,
+                                    params$method,
+                                    params$test,
+                                    params$verbose))
+  names(first_order_mbs) <- as.character(params$first_order_neighbors)
+  expect_snapshot_output(
+    for (i in names(first_order_mbs)){
+      cat("MB(",i,"): ",paste(first_order_mbs[[i]]$mb,collapse = " "),"\n",sep = "")
+    }
+  )
+  f_o_list <- list("f_o_mbs"=first_order_mbs)
+  params$first_order_mbs <- first_order_mbs
+  
+  # check spouses for target "smoke"
+  target <- targets[2]
+  pc_set <- params$target_mbs[[as.character(target)]][['mb']]
+  pairs_checked <- matrix(0,nrow = p,ncol = p)
+  second_order_neighbors <- unique(unlist(
+    lapply(pc_set,function(x){
+      if (as.character(x) %in% names(params$target_mbs)){
+        return(params$target_mbs[[as.character(x)]][["mb"]])
+      } else {
+        return(params$first_order_mbs[[as.character(x)]][["mb"]])
+      }
+    })
+  ))
+  second_order_neighbors <- sort(setdiff(second_order_neighbors,
+                                         c(target,pc_set)))
+  # 2-order nbrs are "either" and "dysp" (excluding tub as a spouse)
+  expect_equal(second_order_neighbors,c(6,8))
+  
+  # target "bronc"
+  target <- targets[3]
+  pc_set <- params$target_mbs[[as.character(target)]][['mb']]
+  second_order_neighbors <- unique(unlist(
+    lapply(pc_set,function(x){
+      if (as.character(x) %in% names(params$target_mbs)){
+        return(params$target_mbs[[as.character(x)]][["mb"]])
+      } else {
+        return(params$first_order_mbs[[as.character(x)]][["mb"]])
+      }
+    })
+  ))
+  second_order_neighbors <- sort(setdiff(second_order_neighbors,
+                                         c(target,pc_set)))
+  expect_equal(second_order_neighbors,c(4,6))
+  pairs_checked[target,4] <- 1
+  already_checked <- which(pairs_checked[target,]==1)
+  second_order_neighbors <- setdiff(second_order_neighbors,already_checked)
+  expect_equal(second_order_neighbors,6)
+  
+  second_order_neighbors <- c(4,6)
+  C <- cor(params$data)
+  n <- nrow(params$data)
+  num_tests <- 0
+  target_mbs <- params$target_mbs
+  expect_equal(target_mbs[["5"]][["mb"]],c(3,8))
+  first_order_mbs <- params$first_order_mbs
+  expect_equal(first_order_mbs[["4"]][["mb"]],c(3,6))
+  spouses_added <- c()
+  spouse_mbs <- list()
+  lapply(second_order_neighbors,function(x){
+    if (verbose){
+      cat("Checking if node",x,"is a spouse of target",target,"...")
+    }
+    test <- condIndTest(C,target-1,x-1,pc_set-1,n,threshold)
+    num_tests <<- num_tests + 1
+    pairs_checked[target,x] <<- pairs_checked[x,target] <<- 1
+    if (!test$result){
+      # We reject H_0, and conclude in favor of conditional dependence
+      # Add x to the Markov Blanket set
+      if (verbose){
+        cat(" yes. Adding",x,"to MB of",target,". ")
+      }
+      target_mbs[[as.character(target)]][["mb"]] <<- sort(c(
+        target_mbs[[as.character(target)]][["mb"]],x
+      ))
+      # Situation where x (the new spouse) is another target node
+      if (x %in% targets){
+        if (verbose){
+          cat("Adding",target,"to MB of",
+              x,"(another target node).")
+        }
+        target_mbs[[as.character(x)]][["mb"]] <<- sort(c(
+          target_mbs[[as.character(x)]][["mb"]],target
+        ))
+      } else if (as.character(x) %in% names(first_order_mbs)){
+        # x is a first-order neighbor for another target
+        if (verbose){
+          cat("Adding",target,"to MB of",
+              x,"(first-order neighbor of another target).")
+        }
+        first_order_mbs[[as.character(x)]][["mb"]] <<- sort(c(
+          first_order_mbs[[as.character(x)]][["mb"]],target
+        ))
+      } else {
+        # otherwise, x was previously identified as exclusively a second-order 
+        # neighbor 
+        if (verbose){
+          cat(x,"is a newly discovered 1st-order neighbor",
+              "(was previously 2nd-order only).")
+        }
+        # We have to track which spouses are newly added, because
+        # we must estimate their Markov Blankets as well
+        spouses_added <<- c(spouses_added,x)
+        # Add target to MB set for node x in special spouse_mb list
+        # Additional MB identification will take place later
+        spouse_mbs[[as.character(x)]] <<- unique(c(
+          target,first_order_mbs[[as.character(x)]]
+        ))
+      }
+    } else { # Accept H_0
+      if (verbose){
+        cat(" no")
+      }
+    }
+    if (verbose){
+      cat("\n")
+    }
+  })
+  expect_equal(target_mbs[["1"]][["mb"]],2)
+  expect_equal(target_mbs[["3"]][["mb"]],c(4,5))
+  expect_equal(target_mbs[["5"]][["mb"]],c(3,4,6,8))
+  expect_equal(first_order_mbs[["4"]][["mb"]],c(3,5,6))
+  expect_equal(spouses_added,6)
+  expect_equal(spouse_mbs[["6"]],5)
+})
+
+test_that("Check Capture Spouses",{
+  targets <- c(1,3,5)
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- lapply(targets,
+                              function(t) 
+                                getMB(t,dataset,threshold,lmax,
+                                      method,test,verbose)
+  )
+  names(params$target_mbs) <- as.character(targets)
+  params$first_order_neighbors <- unique(
+    setdiff(
+      getAllMBNodes(params$target_mbs),targets
+    )
+  )
+  f_o_list <- getFirstOrderNeighborMBs(params)
+  params$first_order_mbs <- f_o_list$f_o_mbs
+  expect_snapshot_output(params <- captureSpouses(params))
+})
+
+test_that("Check augment MB Algo",{
+  targets <- c(1,3,5)
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- lapply(targets,
+                              function(t) 
+                                getMB(t,dataset,threshold,lmax,
+                                      method,test,verbose)
+  )
+  names(params$target_mbs) <- as.character(targets)
+  params$first_order_neighbors <- unique(
+    setdiff(
+      getAllMBNodes(params$target_mbs),targets
+    )
+  )
+  f_o_list <- getFirstOrderNeighborMBs(params)
+  params$first_order_mbs <- f_o_list$f_o_mbs
+  params <- augmentMBAlgo(params)
+  expect_snapshot_output(
+    for (i in names(params$final_mb_list)){
+      cat("MB(",i,"): ",paste(params$final_mb_list[[i]]$mb,collapse = " "),"\n",sep = "")
+    }
+  )
 })
 
 test_that("Markov Blanket Estimation",{
@@ -222,6 +469,9 @@ test_that("Obtaining Markov Blanket Nodes from List",{
   expect_setequal(node_list,unique(unlist(true_res)))
 })
 
+
+# Check Matrix Storage for MB ---------------------------------------------
+
 test_that("Create adjacency matrix from MB List",{
   res <- getAllMBs(targets = c(4,8),asiadf,verbose = FALSE)
   node_list <- getAllMBNodes(res$mb_list)
@@ -246,74 +496,7 @@ test_that("Create adjacency matrix from MB List",{
   }
 })
 
-mb_mat <- matrix(c(
-  0,1,0,0,0,0,0,0,
-  1,0,0,1,0,1,0,0,
-  0,0,0,1,1,0,0,0,
-  0,1,1,0,0,1,0,0,
-  0,0,1,0,0,1,0,1,
-  0,1,0,1,1,0,1,1,
-  0,0,0,0,0,1,0,0,
-  0,0,0,0,1,1,0,0
-),nrow = 8,ncol = 8,byrow = TRUE)
-
-mb_list <- list(
-  "asia"=list("children"=1,"parents"=0,"spouses"=0),
-  "tub"=list("children"=1,"parents"=1,"spouses"=1),
-  "smoke"=list("children"=2,"parents"=0,"spouses"=0),
-  "lung"=list("children"=1,"parents"=1,"spouses"=1),
-  "bronc"=list("children"=1,"parents"=1,"spouses"=1),
-  "either"=list("children"=2,"parents"=2,"spouses"=1),
-  "xray"=list("children"=0,"parents"=1,"spouses"=0),
-  "dysp"=list("children"=0,"parents"=2,"spouses"=0)
-)
-
-test_that("Testing Markov Blanket Recovery Metrics Function",{
-  
-  for (i in seq(8)){
-    results <- mbRecoveryMetrics(asiaDAG,mb_mat,i)
-    expect_equal(results$mb_children_tp,mb_list[[node_names[i]]]$children)
-    expect_equal(results$mb_parents_tp,mb_list[[node_names[i]]]$parents)
-    expect_equal(results$mb_spouses_tp,mb_list[[node_names[i]]]$spouses)
-    expect_equal(results$mb_children_fn,0)
-    expect_equal(results$mb_parents_fn,0)
-    expect_equal(results$mb_spouses_fn,0)
-    expect_equal(results$mb_total_fp,0)
-  }
-  
-  pairs <- combn(seq(8),2)
-  apply(pairs,2,function(x){
-    results <- mbRecoveryMetrics(asiaDAG,mb_mat,x)
-    true_children <- mb_list[[node_names[x[1]]]]$children+mb_list[[node_names[x[2]]]]$children
-    true_parents <- mb_list[[node_names[x[1]]]]$parents+mb_list[[node_names[x[2]]]]$parents
-    true_spouses <- mb_list[[node_names[x[1]]]]$spouses+mb_list[[node_names[x[2]]]]$spouses
-    expect_equal(results$mb_children_tp,true_children)
-    expect_equal(results$mb_parents_tp,true_parents)
-    expect_equal(results$mb_spouses_tp,true_spouses)
-    expect_equal(results$mb_children_fn,0)
-    expect_equal(results$mb_parents_fn,0)
-    expect_equal(results$mb_spouses_fn,0)
-    expect_equal(results$mb_total_fp,0)
-  })
-  
-  # Remove tub as a child of asia
-  mb_mat[1,2] <- 0
-  mb_mat[2,1] <- 0
-  expect_equal(mbRecoveryMetrics(asiaDAG,mb_mat,1)$mb_children_fn,1)
-  # Remove either as child of lung, tub as spouse of lung
-  # Add dysp as a child of asia
-  mb_mat[4,6] <- mb_mat[6,4] <- 0
-  mb_mat[4,2] <- mb_mat[2,4] <- 0
-  mb_mat[1,8] <- mb_mat[8,1] <- 1
-  expect_equal(mbRecoveryMetrics(asiaDAG,mb_mat,c(1,2,6)),
-               data.frame("mb_children_fn"=1, # tub is not a child of asia
-                          "mb_children_tp"=3, # either is still a child of tub, xray and dysp of either
-                          "mb_parents_fn"=2, # asia is no longer parent of tub, either not a child of tub
-                          "mb_parents_tp"=1, # tub is still parent of either
-                          "mb_spouses_fn"=1, # lung no longer spouse of tub
-                          "mb_spouses_tp"=1, # bronc is still a spouse of either
-                          "mb_total_fp"=1)) # dysp and asia now in each other's mb
-})
+# Misc. Tests -------------------------------------------------------------
 
 test_that("Testing error and warning conditions",{
   # Error for invalid target index
@@ -363,8 +546,15 @@ test_that("Misc. Tests for MB Functions",{
       "n_tests"=10
     )
   )
-  constructFinalMBList(targets,target_mbs,
-                       asiadf,threshold=0.01,method="MMPC",test="testIndFisher",verbose=TRUE)
+  dataset <- asiadf
+  threshold <- 0.01
+  lmax <- 3
+  method <- "MMPC"
+  test <- "testIndFisher"
+  verbose <- TRUE
+  params <- createParamList(targets,dataset,threshold,lmax,method,test,verbose)
+  params$target_mbs <- target_mbs
+  constructFinalMBList(params)
   
   targets <- c(3,5,6,8)
   mbList <- getAllMBs(targets,asiadf)$mb_list
@@ -373,4 +563,7 @@ test_that("Misc. Tests for MB Functions",{
                                  function(x) {return(x$time)}))))
   expect_equal(getTotalMBTests(mbList),0)
   
+  targets <- c(1,3,5,5,6)
+  expect_warning(new_targets <- checkUniqueTargets(targets))
+  expect_equal(new_targets,c(1,3,5,6))
 })
