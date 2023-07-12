@@ -1,4 +1,4 @@
-expect_warning(expect_warning(library(tidyverse,quietly = TRUE,verbose = FALSE,warn.conflicts = FALSE)))
+library(tidyverse,quietly = TRUE,verbose = FALSE,warn.conflicts = FALSE)
 library(pcalg,quietly = TRUE,verbose = FALSE,warn.conflicts = FALSE)
 library(bnlearn)
 

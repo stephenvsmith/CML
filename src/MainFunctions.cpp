@@ -13,12 +13,14 @@ List sampleCML(NumericMatrix true_dag,arma::mat df,
                NumericVector nodes_interest,
                StringVector names,int lmax=3,
                double signif_level = 0.01,
-               bool verbose=true,bool estDAG=false){
+               bool verbose=true,
+               std::string test="testIndFisher",
+               bool estDAG=false){
   // Variable to keep track of timing
   auto start = high_resolution_clock::now();
   
   // Instantiate the Local FCI object
-  CML cml(true_dag,df,targets,nodes_interest,names,lmax,signif_level,verbose,estDAG);
+  CML cml(true_dag,df,targets,nodes_interest,names,lmax,signif_level,verbose,test,estDAG);
   
   cml.run(); 
   
@@ -86,12 +88,14 @@ List sampleSNL(NumericMatrix true_dag,arma::mat df,
                    NumericVector nodes_interest,
                    StringVector names,int lmax=3,
                    double signif_level = 0.01,
-                   bool verbose=true,bool estDAG=false){
+                   bool verbose=true,
+                   std::string test="testIndFisher",
+                   bool estDAG=false){
   // Variable to keep track of timing
   auto start = high_resolution_clock::now();
 
   // Instantiate the Local PC object
-  SNL snl(true_dag,df,targets,nodes_interest,names,lmax,signif_level,verbose,estDAG);
+  SNL snl(true_dag,df,targets,nodes_interest,names,lmax,signif_level,verbose,test,estDAG);
 
   snl.run();
 

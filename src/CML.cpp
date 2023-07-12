@@ -13,9 +13,11 @@ CML::CML(NumericMatrix true_dag,arma::mat df,
                    StringVector names,
                    int lmax,
                    double signif_level,
-                   bool verbose,bool estDAG) : 
+                   bool verbose,
+                   std::string test,
+                   bool estDAG) : 
   ConstrainedAlgo(true_dag,df,targets,nodes_interest,names,lmax,
-                  signif_level,verbose,estDAG){
+                  signif_level,verbose,test,estDAG){
   
   // Make a map to relate efficient numbering to true numbering
   // Map: true numbering -> efficient numbering

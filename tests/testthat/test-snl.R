@@ -22,7 +22,7 @@ test_that("Targets are properly validated",{
 
 test_that("Sample SNL (given true Markov Blankets)",{
   expect_equal(checkInitializeSNL(asiaDAG,df,t,seq(0,p-1),names),8)
-
+  
   pc_dag <- empty.graph(names[c(2,4,5,6,7,8)])
   expect_snapshot_output(amat(pc_dag) <- checkGetTargetSkel(asiaDAG,df,t,seq(0,p-1),names))
   # graphviz.plot(pc_dag)
@@ -98,7 +98,7 @@ test_that("Additional Pop. Version test",{
 
 test_that("Wrapper function (Population Version)",{
   expect_snapshot_output(wrapper_res <- snl(true_dag = asiaDAG,targets = c(3,4),
-                                                node_names = names))
+                                            node_names = names))
   # res_g <- empty.graph(names)
   # amat(res_g) <- wrapper_res$amat
   # graphviz.plot(res_g)
@@ -106,12 +106,12 @@ test_that("Wrapper function (Population Version)",{
 
 test_that("Wrapper function (Semi-Sample Version)",{
   expect_snapshot_output(wrapper_res_semi <- snl(data = asiadf,true_dag = asiaDAG,
-                                              targets = c(3,4),node_names = names))
+                                                 targets = c(3,4),node_names = names))
 })
 
 test_that("Wrapper function (Sample Version)",{
   expect_snapshot_output(wrapper_res_sample <- snl(data = asiadf,targets = c(3,4),
-                                                node_names = names))
+                                                   node_names = names))
   # Same as above, but without names
   expect_snapshot_output(wrapper_res_sample <- snl(data = asiadf,targets = c(3,4)))
 })

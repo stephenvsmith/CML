@@ -16,7 +16,9 @@ public:
                   StringVector names,
                   int lmax,
                   double signif_level,
-                  bool verbose,bool estDAG=false);
+                  bool verbose,
+                  std::string test="testIndFisher",
+                  bool estDAG=false);
   // population version
   ConstrainedAlgo(NumericMatrix true_dag,
                   NumericVector targets,
@@ -103,6 +105,7 @@ protected:
   NumericVector targets;
   NumericVector neighborhood; // tracks all nodes being considered by algorithm
   StringVector names;
+  std::string test; // what we are using for our conditional independence tests
   Graph* C_tilde;
   DAG* true_DAG;
   SepSetList* S;

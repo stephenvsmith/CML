@@ -7,8 +7,8 @@
 #' @export
 
 snl <- function(data=NULL,true_dag=NULL,targets,
-                    node_names=NULL,lmax=3,tol=0.01,mb_tol=0.05,
-                    method="MMPC",test="testIndFisher",verbose = TRUE){
+                node_names=NULL,lmax=3,tol=0.01,mb_tol=0.05,
+                method="MMPC",test="testIndFisher",verbose = TRUE){
   
   if (lmax < 0){
     stop("Invalid lmax value")
@@ -68,15 +68,16 @@ snl <- function(data=NULL,true_dag=NULL,targets,
       cat("Population Version:\n")
     }
     results <- popSNL(true_dag,cpp_targets,nodes_interest,
-                          node_names,lmax,verbose)
+                      node_names,lmax,verbose)
   } else {
     if (semi_sample_version & verbose){
       cat("Semi-Sample Version:\n")
     } else {
       if (verbose) cat("Sample Version:\n")
     }
+
     results <- sampleSNL(true_dag,data,cpp_targets,nodes_interest,
-                             node_names,lmax,tol,verbose,estDAG)
+                         node_names,lmax,tol,verbose,test,estDAG)
   }
   
   # We change the target to target - 1 in order to accommodate change to C++

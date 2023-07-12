@@ -13,7 +13,9 @@ public:
            StringVector names,
            int lmax,
            double signif_level,
-           bool verbose,bool estDAG=false); // tested
+           bool verbose,
+           std::string test="testIndFisher",
+           bool estDAG=false); // tested
   
   SNL(NumericMatrix true_dag, // population version
            NumericVector targets,

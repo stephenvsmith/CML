@@ -7,9 +7,11 @@ ConstrainedAlgo::ConstrainedAlgo(NumericMatrix true_dag,arma::mat df,
                                  StringVector names,
                                  int lmax,
                                  double signif_level,
-                                 bool verbose,bool estDAG) :
+                                 bool verbose,
+                                 std::string test,
+                                 bool estDAG) :
   lmax(lmax),targets(targets),names(names),df(df),
-  signif_level(signif_level),verbose(verbose){
+  signif_level(signif_level),test(test),verbose(verbose){
   
   num_targets = targets.length();
   if (verbose){
@@ -17,7 +19,9 @@ ConstrainedAlgo::ConstrainedAlgo(NumericMatrix true_dag,arma::mat df,
     printVecElements(targets,names,"Targets: ","\n");
   }
   p = true_dag.ncol();
-  R = arma::cor(df);
+  if (test=="testIndFisher"){
+    R = arma::cor(df); 
+  }
   n = df.n_rows;
   num_tests=0;
   
@@ -60,6 +64,8 @@ ConstrainedAlgo::ConstrainedAlgo(NumericMatrix true_dag,arma::mat df,
   if (verbose){
     Rcout << "\nOur initial separating sets:\n";
     S -> printSepSetList();
+    Rcout << std::endl;
+    Rcout << "We are using test: " << test << std::endl;
   }
 }
 
@@ -168,8 +174,10 @@ void ConstrainedAlgo::checkSeparation(int l,size_t i,size_t j,
       NumericMatrix g = true_DAG -> getAmat();
       test_result = condIndTestPop(g,neighborhood(i),neighborhood(j),sep_arma);
     } else {
-      test_result = condIndTest(R,neighborhood(i),neighborhood(j),
-                                sep_arma,n,signif_level);
+      if (test=="testIndFisher"){
+        test_result = condIndTest(R,neighborhood(i),neighborhood(j),
+                                  sep_arma,n,signif_level); 
+      }
     }
     ++num_tests;
     p_vals.push_back(test_result["pval"]);

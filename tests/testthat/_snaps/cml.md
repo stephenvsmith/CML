@@ -32,6 +32,8 @@
     S_{2,1} = nan S_{2,2} = nan S_{2,3} = nan S_{2,5} = nan 
     S_{3,1} = nan S_{3,2} = nan S_{3,3} = nan S_{3,5} = nan 
     S_{5,1} = nan S_{5,2} = nan S_{5,3} = nan S_{5,5} = nan 
+    
+    We are using test: testIndFisher
     Element mapping for efficient ordering (True -> Efficient):
     1 0
     2 1
@@ -133,6 +135,8 @@
     S_{2,1} = nan S_{2,2} = nan S_{2,3} = nan S_{2,5} = nan 
     S_{3,1} = nan S_{3,2} = nan S_{3,3} = nan S_{3,5} = nan 
     S_{5,1} = nan S_{5,2} = nan S_{5,3} = nan S_{5,5} = nan 
+    
+    We are using test: testIndFisher
     Element mapping for efficient ordering (True -> Efficient):
     1 0
     2 1
@@ -299,6 +303,8 @@
     S_{2,1} = nan S_{2,2} = nan S_{2,3} = nan S_{2,5} = nan 
     S_{3,1} = nan S_{3,2} = nan S_{3,3} = nan S_{3,5} = nan 
     S_{5,1} = nan S_{5,2} = nan S_{5,3} = nan S_{5,5} = nan 
+    
+    We are using test: testIndFisher
     Element mapping for efficient ordering (True -> Efficient):
     1 0
     2 1
@@ -464,6 +470,8 @@
     S_{4,1} = nan S_{4,2} = nan S_{4,3} = nan S_{4,4} = nan S_{4,5} = nan S_{4,7} = nan 
     S_{5,1} = nan S_{5,2} = nan S_{5,3} = nan S_{5,4} = nan S_{5,5} = nan S_{5,7} = nan 
     S_{7,1} = nan S_{7,2} = nan S_{7,3} = nan S_{7,4} = nan S_{7,5} = nan S_{7,7} = nan 
+    
+    We are using test: testIndFisher
     Element mapping for efficient ordering (True -> Efficient):
     1 0
     2 1
@@ -1346,6 +1354,8 @@
     S_{4,1} = nan S_{4,2} = nan S_{4,3} = nan S_{4,4} = nan S_{4,5} = nan S_{4,7} = nan 
     S_{5,1} = nan S_{5,2} = nan S_{5,3} = nan S_{5,4} = nan S_{5,5} = nan S_{5,7} = nan 
     S_{7,1} = nan S_{7,2} = nan S_{7,3} = nan S_{7,4} = nan S_{7,5} = nan S_{7,7} = nan 
+    
+    We are using test: testIndFisher
     Element mapping for efficient ordering (True -> Efficient):
     1 0
     2 1

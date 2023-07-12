@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // sampleCML
-List sampleCML(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, bool estDAG);
-RcppExport SEXP _CML_sampleCML(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP estDAGSEXP) {
+List sampleCML(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, std::string test, bool estDAG);
+RcppExport SEXP _CML_sampleCML(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP testSEXP, SEXP estDAGSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,8 +25,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type lmax(lmaxSEXP);
     Rcpp::traits::input_parameter< double >::type signif_level(signif_levelSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< std::string >::type test(testSEXP);
     Rcpp::traits::input_parameter< bool >::type estDAG(estDAGSEXP);
-    rcpp_result_gen = Rcpp::wrap(sampleCML(true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, estDAG));
+    rcpp_result_gen = Rcpp::wrap(sampleCML(true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, test, estDAG));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -47,8 +48,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sampleSNL
-List sampleSNL(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, bool estDAG);
-RcppExport SEXP _CML_sampleSNL(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP estDAGSEXP) {
+List sampleSNL(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, std::string test, bool estDAG);
+RcppExport SEXP _CML_sampleSNL(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP testSEXP, SEXP estDAGSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -60,8 +61,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type lmax(lmaxSEXP);
     Rcpp::traits::input_parameter< double >::type signif_level(signif_levelSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< std::string >::type test(testSEXP);
     Rcpp::traits::input_parameter< bool >::type estDAG(estDAGSEXP);
-    rcpp_result_gen = Rcpp::wrap(sampleSNL(true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, estDAG));
+    rcpp_result_gen = Rcpp::wrap(sampleSNL(true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, test, estDAG));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1686,9 +1688,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CML_sampleCML", (DL_FUNC) &_CML_sampleCML, 9},
+    {"_CML_sampleCML", (DL_FUNC) &_CML_sampleCML, 10},
     {"_CML_popCML", (DL_FUNC) &_CML_popCML, 6},
-    {"_CML_sampleSNL", (DL_FUNC) &_CML_sampleSNL, 9},
+    {"_CML_sampleSNL", (DL_FUNC) &_CML_sampleSNL, 10},
     {"_CML_popSNL", (DL_FUNC) &_CML_popSNL, 6},
     {"_CML_getEdgeNumber", (DL_FUNC) &_CML_getEdgeNumber, 1},
     {"_CML_sharedNeighborhood", (DL_FUNC) &_CML_sharedNeighborhood, 5},
