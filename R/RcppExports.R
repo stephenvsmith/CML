@@ -85,6 +85,22 @@ condIndTestPop <- function(G, i, j, k) {
     .Call(`_CML_condIndTestPop`, G, i, j, k)
 }
 
+matrix_to_string <- function(sep_vectors) {
+    .Call(`_CML_matrix_to_string`, sep_vectors)
+}
+
+get_G2_one <- function(A, B, tot_Au_size, tot_Bu_size) {
+    .Call(`_CML_get_G2_one`, A, B, tot_Au_size, tot_Bu_size)
+}
+
+get_G2_all <- function(A, B, S) {
+    .Call(`_CML_get_G2_all`, A, B, S)
+}
+
+condInttestdis <- function(df, i, j, k, signif_level) {
+    .Call(`_CML_condInttestdis`, df, i, j, k, signif_level)
+}
+
 initializeCML <- function(td, df, t, nodes_interest, names) {
     invisible(.Call(`_CML_initializeCML`, td, df, t, nodes_interest, names))
 }
