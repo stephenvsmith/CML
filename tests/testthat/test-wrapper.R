@@ -1,11 +1,10 @@
 
 # Setup -------------------------------------------------------------------
-
+library(bnlearn)
 data("asiadf")
 data("asiaDAG")
 node_names <- colnames(asiaDAG)
 asiaDAG <- matrix(asiaDAG,nrow = ncol(asiadf),ncol = ncol(asiadf))
-asiadf <- as.matrix(asiadf)
 p <- length(node_names)
 
 test_that("Wrapper function works (Sample with true DAG)",{
@@ -80,6 +79,25 @@ test_that("Testing pre-checks",{
   expect_error(snl(data = asiadf,targets = c(1,6),lmax = -1,node_names=node_names,verbose = FALSE))
 })
 
+#Need to convert to integer
+test_that("Discrete version",{
+  asia_mat <- data.matrix(asia)-1
+  
+  asia_d_cml <- cml(asia_mat, targets = c(2,5,6), test = "gSquare",verbose = FALSE)
+  expect_snapshot_output(asia_d_cml$amat)
+  expect_snapshot_output(asia_d_cml$S)
+  expect_snapshot_output(asia_d_cml$RulesUsed)
+  
+  #Graphing
+  # data("asiaDAG")
+  # node_names <- colnames(asiaDAG)
+  # p <- ncol(asiaDAG)
+  # 
+  # asia_g <- empty.graph(node_names)
+  # amat(asia_g) <- asia_d_cml$amat
+  
+  #plotOutput(asia_d_cml,asiaDAG)
+})
 
 
 

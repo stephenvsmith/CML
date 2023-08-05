@@ -50,7 +50,7 @@ cml <- function(data=NULL,true_dag=NULL,targets,
     data_means <- colMeans(data)
     data_cov <- stats::cov(data)
     
-    # Standardize the data (for only continuous data - Josh)
+    # Standardize the data (for only continuous data)
     if(test == "testIndFisher")
     {
       data <- scale(data)
