@@ -50,12 +50,21 @@ cml <- function(data=NULL,true_dag=NULL,targets,
     data_means <- colMeans(data)
     data_cov <- stats::cov(data)
     
-    # Standardize the data
-    data <- scale(data)
+    # Standardize the data (for only continuous data - Josh)
+    if(test == "testIndFisher")
+    {
+      data <- scale(data)
+    }
+    else if (test == "gSquare")
+    {
+      data <- data - min(data)
+    }
+    
   }
   mb_num_tests <- 0
   mb_time_track <- NA
   if (is.null(true_dag)){
+
     
     # Find Markov Blankets (mbEst.R)
     mb_start <- Sys.time()

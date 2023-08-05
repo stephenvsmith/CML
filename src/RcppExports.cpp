@@ -313,6 +313,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// matrix_to_string
+arma::vec matrix_to_string(arma::mat sep_vectors);
+RcppExport SEXP _CML_matrix_to_string(SEXP sep_vectorsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type sep_vectors(sep_vectorsSEXP);
+    rcpp_result_gen = Rcpp::wrap(matrix_to_string(sep_vectors));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_G2_one
+double get_G2_one(arma::vec A, arma::vec B, int tot_Au_size, int tot_Bu_size);
+RcppExport SEXP _CML_get_G2_one(SEXP ASEXP, SEXP BSEXP, SEXP tot_Au_sizeSEXP, SEXP tot_Bu_sizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type A(ASEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type B(BSEXP);
+    Rcpp::traits::input_parameter< int >::type tot_Au_size(tot_Au_sizeSEXP);
+    Rcpp::traits::input_parameter< int >::type tot_Bu_size(tot_Bu_sizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_G2_one(A, B, tot_Au_size, tot_Bu_size));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_G2_all
+double get_G2_all(arma::vec A, arma::vec B, arma::vec S);
+RcppExport SEXP _CML_get_G2_all(SEXP ASEXP, SEXP BSEXP, SEXP SSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type A(ASEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type S(SSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_G2_all(A, B, S));
+    return rcpp_result_gen;
+END_RCPP
+}
+// condInttestdis
+List condInttestdis(arma::mat df, const size_t& i, const size_t& j, const arma::uvec& k, const double& signif_level);
+RcppExport SEXP _CML_condInttestdis(SEXP dfSEXP, SEXP iSEXP, SEXP jSEXP, SEXP kSEXP, SEXP signif_levelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type i(iSEXP);
+    Rcpp::traits::input_parameter< const size_t& >::type j(jSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const double& >::type signif_level(signif_levelSEXP);
+    rcpp_result_gen = Rcpp::wrap(condInttestdis(df, i, j, k, signif_level));
+    return rcpp_result_gen;
+END_RCPP
+}
 // initializeCML
 void initializeCML(NumericMatrix td, arma::mat df, NumericVector t, NumericVector nodes_interest, StringVector names);
 RcppExport SEXP _CML_initializeCML(SEXP tdSEXP, SEXP dfSEXP, SEXP tSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP) {
@@ -1709,6 +1762,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_CML_fisherZ", (DL_FUNC) &_CML_fisherZ, 3},
     {"_CML_condIndTest", (DL_FUNC) &_CML_condIndTest, 6},
     {"_CML_condIndTestPop", (DL_FUNC) &_CML_condIndTestPop, 4},
+    {"_CML_matrix_to_string", (DL_FUNC) &_CML_matrix_to_string, 1},
+    {"_CML_get_G2_one", (DL_FUNC) &_CML_get_G2_one, 4},
+    {"_CML_get_G2_all", (DL_FUNC) &_CML_get_G2_all, 3},
+    {"_CML_condInttestdis", (DL_FUNC) &_CML_condInttestdis, 5},
     {"_CML_initializeCML", (DL_FUNC) &_CML_initializeCML, 5},
     {"_CML_initializeCMLPop", (DL_FUNC) &_CML_initializeCMLPop, 4},
     {"_CML_getSizeCML", (DL_FUNC) &_CML_getSizeCML, 5},

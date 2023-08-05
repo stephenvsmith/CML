@@ -27,11 +27,15 @@ getMB <- function(target,dataset,threshold=0.01,lmax=3,
   validateMethod(method)
   validateTarget(target,ncol(dataset))
   
+  
+  
   if (method=="MMPC"){
+    
     mb <- MXM::MMPC(target=target,dataset=dataset,
                     threshold=threshold,test=test,
                     max_k=lmax,hash = FALSE,
                     backward = FALSE)
+    
     mb_vars <- mb@selectedVars
     n_tests <- mb@n.tests # Must change if we include backward phase
     runtime <- mb@runtime[3]
@@ -207,7 +211,15 @@ captureSpouses <- function(params){
         if (params$verbose){
           cat("Checking if node",x,"is a spouse of target",target,"...")
         }
-        test <- condIndTest(C,target-1,x-1,pc_set-1,n,params$threshold)
+        if (params$test == "testIndFisher")
+        {
+          test <- condIndTest(C,target-1,x-1,pc_set-1,n,params$threshold)
+        }
+        if (params$test == "gSquare")
+        {
+          test <- condInttestdis(params$data,target-1,x-1,pc_set-1,params$threshold)
+        }
+        
         params$spouses_num_tests <<- params$spouses_num_tests + 1
         pairs_checked[target,x] <<- pairs_checked[x,target] <<- 1
         if (!test$result){

@@ -5,6 +5,7 @@
 #include "SepSetList.h"
 #include "MBList.h"
 #include "pCorTest.h"
+#include "pDCorTest.h"
 
 using namespace Rcpp;
 

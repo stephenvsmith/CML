@@ -174,9 +174,14 @@ void ConstrainedAlgo::checkSeparation(int l,size_t i,size_t j,
       NumericMatrix g = true_DAG -> getAmat();
       test_result = condIndTestPop(g,neighborhood(i),neighborhood(j),sep_arma);
     } else {
+      
       if (test=="testIndFisher"){
         test_result = condIndTest(R,neighborhood(i),neighborhood(j),
                                   sep_arma,n,signif_level); 
+      }
+      else if (test == "gSquare"){
+        test_result = condInttestdis(df,neighborhood(i),neighborhood(j),
+                                  sep_arma,signif_level);
       }
     }
     ++num_tests;
@@ -218,9 +223,15 @@ void ConstrainedAlgo::checkSeparation(int l,size_t i,size_t j,
                                      neighborhood(i),neighborhood(j),
                                      sep_arma);
       } else {
-        test_result = condIndTest(R,
-                                  neighborhood(i),neighborhood(j),
-                                  sep_arma,n,signif_level);
+        
+        if (test=="testIndFisher"){
+          test_result = condIndTest(R,neighborhood(i),neighborhood(j),
+                                    sep_arma,n,signif_level); 
+        }
+        else if (test == "gSquare"){
+          test_result = condInttestdis(df,neighborhood(i),neighborhood(j),
+                                       sep_arma,signif_level);
+        }
       }
       ++num_tests;
       p_vals.push_back(test_result["pval"]);
