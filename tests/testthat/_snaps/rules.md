@@ -197,7 +197,6 @@
     Found a final node on the uncovered p.d. path: 2
     Path: 4 5 7 0 1 2 6
     Final Path: 4 5 7 0 1 2 6
-    Final path first
     Rule 9: There exists an uncovered potentially directed path between 4 and 6
     Orient: 4 -> 6
     Rule 9 has been used 1 times.
@@ -284,7 +283,6 @@
     Found a final node on the uncovered p.d. path: 7
     Path: 2 3 1 6 7 4
     Final Path: 2 3 1 6 7 4
-    Final path first
     Rule 9: There exists an uncovered potentially directed path between 2 and 4
     Orient: 2 -> 4
     Rule 9 has been used 1 times.
@@ -333,7 +331,6 @@
     Found a final node on the uncovered p.d. path: 0
     Path: 2 6 0 3
     Final Path: 2 6 0 3
-    Final path first
     t1: 2 6 0 3
     Checking for paths of 4 or more
     Potential theta: 1
@@ -343,7 +340,6 @@
     Found a final node on the uncovered p.d. path: 1
     Path: 2 7 1 5
     Final Path: 2 7 1 5
-    Final path first
     t2: 2 7 1 5
     
     Rule 10
@@ -430,7 +426,6 @@
     Found a final node on the uncovered p.d. path: 5
     Path: 2 7 1 5 4
     Final Path: 2 7 1 5 4
-    Final path first
     Rule 9: There exists an uncovered potentially directed path between 2 and 4
     Orient: 2 -> 4
     Rule 9 has been used 1 times.
@@ -584,10 +579,10 @@
          [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
     [1,]    0    0    1    2    0    0    0    0
     [2,]    0    0    1    0    0    0    0    0
-    [3,]    0    0    0    4    0    0    4    2
+    [3,]    0    0    0    2    0    0    4    2
     [4,]    2    0    4    0    1    0    0    1
     [5,]    0    0    0    1    0    0    0    0
     [6,]    0    0    0    0    0    0    0    0
-    [7,]    0    0    4    0    0    1    0    0
+    [7,]    0    0    3    0    0    1    0    0
     [8,]    0    0    3    1    1    1    0    0
 

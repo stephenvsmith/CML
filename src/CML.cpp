@@ -65,13 +65,17 @@ void CML::getSkeletonTotal(){
   NumericMatrix kvals;
   
   int l = -1;
+  bool cont = true;
   // Finding the skeleton for the complete undirected graph on U_t (X_t U N_t)
-  while (l < lmax){
+  while ((l < lmax) && cont){
     l += 1;
     if (verbose){
       Rcout << "The value of l is " << l << std::endl;
     }
-    
+    if (l>0){
+      // only continue if there are enough nodes for potential sep. sets
+      cont = false; 
+    }
     for (size_t i=0;i<N;++i){
       if (verbose){
         Rcout << "The value of i is " << i;
@@ -93,7 +97,9 @@ void CML::getSkeletonTotal(){
           std::sort(neighbors.begin(),neighbors.end());
           // If there are enough potential neighbors to match the current 
           // separating set size, we continue
+          cont = false;
           if (neighbors.length()>= l){
+            cont = true;
             if (verbose && l>0){
               if (neighbors.length() > 1){
                 Rcout << "There are " << neighbors.length() << " neighbors.\n";
@@ -123,6 +129,7 @@ void CML::getSkeletonTarget(const size_t &t){
   auto target_skeleton_start = high_resolution_clock::now();
   // We should start with l=1 because we've already done l=0 previously
   size_t l = 0; 
+  bool cont = true;
   NumericVector neighbors;
   NumericVector edges_i;
   NumericMatrix kvals;
@@ -153,8 +160,9 @@ void CML::getSkeletonTarget(const size_t &t){
     }
   }
   
-  while (l < lmax){
+  while ((l < lmax) && cont){
     l += 1;
+    cont = false;
     if (verbose){
       Rcout << "The value of l is " << l << std::endl;
     }
@@ -188,8 +196,9 @@ void CML::getSkeletonTarget(const size_t &t){
           }
           // If there are enough potential neighbors to match the current 
           // separating set size, we continue
-          if (neighbors.length()>= l){
-            if (verbose && l>0){
+          if (neighbors.length()>=l){
+            cont = true;
+            if (verbose){
               Rcout << "There are " << neighbors.length() << " neighbor(s).\n";
             }
             kvals = combn_cpp(neighbors,l);
@@ -968,7 +977,7 @@ void CML::convertMixedGraph(){
         // Convert circle markings label from "1" to "4"
         if (G_ij==1){
           C_tilde->setAmatVal(i,j,4);
-          C_tilde->setAmatVal(j,i,4);
+          //C_tilde->setAmatVal(j,i,4); // TODO: WHY DID WE HAVE THIS BEFORE? 
         }
       }
       

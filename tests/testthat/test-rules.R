@@ -344,6 +344,7 @@ test_that("All Rules is correct.",{
   
 })
 
+# TODO: Need more details to test between-neighborhood edges with circles ("4" marking)
 test_that("Test conversion of Mixed Graph",{
   dag_amat <- matrix(0,nrow = 12,ncol = 12)
   dag_amat[1,2] <- dag_amat[1,5] <- 1

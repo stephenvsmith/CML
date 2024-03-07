@@ -76,7 +76,7 @@ cml <- function(data=NULL,true_dag=NULL,targets,
     # Track the time needed to estimate MB's
     mb_time_track <- as.numeric(mb_diff)
     mbList <- result$mb_list
-    
+
     # Store all of the nodes estimated to be needed (targets and first-order neighbors)
     # Subtract 1 for conversion from C++ numbering scheme
     nodes_interest <- as.numeric(names(mbList))-1

@@ -129,6 +129,7 @@ void SNL::getSkeletonTarget(const size_t &t){
   validateTargetSNL(targets,t);
   auto target_skeleton_start = high_resolution_clock::now();
   int l = -1;
+  bool cont = true;
   NumericVector neighbors;
   NumericVector edges_i;
   NumericMatrix kvals;
@@ -157,12 +158,14 @@ void SNL::getSkeletonTarget(const size_t &t){
     }
   }
   
-  while (l < lmax){
+  while ((l < lmax) && cont){
     l += 1;
     if (verbose){
       Rcout << "The value of l is " << l << std::endl;
     }
-    
+    if (l>0){
+      cont = false; // only continue if the adjacency sets are large enough 
+    }
     // We only consider the target and its neighborhood in the graph currently
     for (auto i : target_neighborhood){
       if (verbose){
@@ -195,6 +198,7 @@ void SNL::getSkeletonTarget(const size_t &t){
           }
           // If there are enough potential neighbors to match the current separating set size, we continue
           if (neighbors.length()>= l){
+            cont = true; // we may continue because adjacency sets are large enough
             if (verbose && l>0){
               Rcout << "There are " << neighbors.length() << " neighbor(s).\n";
             }

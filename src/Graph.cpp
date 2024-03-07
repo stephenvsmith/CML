@@ -339,7 +339,7 @@ NumericVector Graph::minUncovPdPath(size_t alpha,size_t beta,size_t gamma){
       // Check that d fulfills p.d. requirements
       final_path = idUncovPdPath(alpha,beta,gamma,d,mpath);
       if (final_path.length()>0){
-        Rcout << "Final path first\n";
+        //Rcout << "Final path first\n";
         return final_path;
       } else {
         // d and gamma are not connected or connected with a "wrong" edge
