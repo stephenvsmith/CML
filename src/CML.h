@@ -66,6 +66,7 @@ public:
   
   // Function to run the algorithm
   void run(); // tested in wrapper test
+  void run_mag(); // TODO: NOT TESTED
   
   // Graph conversion
   void convertMixedGraph(); // tested

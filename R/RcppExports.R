@@ -9,6 +9,14 @@ popCML <- function(true_dag, targets, nodes_interest, names, lmax = 3L, verbose 
     .Call(`_CML_popCML`, true_dag, targets, nodes_interest, names, lmax, verbose)
 }
 
+sampleCML_mag <- function(true_dag, df, targets, nodes_interest, names, lmax = 3L, signif_level = 0.01, verbose = TRUE, test = "testIndFisher", estDAG = FALSE) {
+    .Call(`_CML_sampleCML_mag`, true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, test, estDAG)
+}
+
+popCML_mag <- function(true_dag, targets, nodes_interest, names, lmax = 3L, verbose = TRUE) {
+    .Call(`_CML_popCML_mag`, true_dag, targets, nodes_interest, names, lmax, verbose)
+}
+
 sampleSNL <- function(true_dag, df, targets, nodes_interest, names, lmax = 3L, signif_level = 0.01, verbose = TRUE, test = "testIndFisher", estDAG = FALSE) {
     .Call(`_CML_sampleSNL`, true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, test, estDAG)
 }

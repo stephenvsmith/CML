@@ -47,6 +47,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sampleCML_mag
+List sampleCML_mag(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, std::string test, bool estDAG);
+RcppExport SEXP _CML_sampleCML_mag(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP testSEXP, SEXP estDAGSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type true_dag(true_dagSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type targets(targetsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nodes_interest(nodes_interestSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type names(namesSEXP);
+    Rcpp::traits::input_parameter< int >::type lmax(lmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type signif_level(signif_levelSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< std::string >::type test(testSEXP);
+    Rcpp::traits::input_parameter< bool >::type estDAG(estDAGSEXP);
+    rcpp_result_gen = Rcpp::wrap(sampleCML_mag(true_dag, df, targets, nodes_interest, names, lmax, signif_level, verbose, test, estDAG));
+    return rcpp_result_gen;
+END_RCPP
+}
+// popCML_mag
+List popCML_mag(NumericMatrix true_dag, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, bool verbose);
+RcppExport SEXP _CML_popCML_mag(SEXP true_dagSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type true_dag(true_dagSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type targets(targetsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type nodes_interest(nodes_interestSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type names(namesSEXP);
+    Rcpp::traits::input_parameter< int >::type lmax(lmaxSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(popCML_mag(true_dag, targets, nodes_interest, names, lmax, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sampleSNL
 List sampleSNL(NumericMatrix true_dag, arma::mat df, NumericVector targets, NumericVector nodes_interest, StringVector names, int lmax, double signif_level, bool verbose, std::string test, bool estDAG);
 RcppExport SEXP _CML_sampleSNL(SEXP true_dagSEXP, SEXP dfSEXP, SEXP targetsSEXP, SEXP nodes_interestSEXP, SEXP namesSEXP, SEXP lmaxSEXP, SEXP signif_levelSEXP, SEXP verboseSEXP, SEXP testSEXP, SEXP estDAGSEXP) {
@@ -1743,6 +1779,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_CML_sampleCML", (DL_FUNC) &_CML_sampleCML, 10},
     {"_CML_popCML", (DL_FUNC) &_CML_popCML, 6},
+    {"_CML_sampleCML_mag", (DL_FUNC) &_CML_sampleCML_mag, 10},
+    {"_CML_popCML_mag", (DL_FUNC) &_CML_popCML_mag, 6},
     {"_CML_sampleSNL", (DL_FUNC) &_CML_sampleSNL, 10},
     {"_CML_popSNL", (DL_FUNC) &_CML_popSNL, 6},
     {"_CML_getEdgeNumber", (DL_FUNC) &_CML_getEdgeNumber, 1},

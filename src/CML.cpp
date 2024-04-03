@@ -1056,3 +1056,36 @@ void CML::run(){
                                 target_skeleton_times.end(),0);
 }
 
+void CML::run_mag(){
+  if (verbose){
+    Rcout << "Beginning the";
+    if (pop){
+      Rcout << " population";
+    }
+    Rcout << " Local FCI algorithm over all neighborhoods, not including the mixed graph conversion rules within neighborhoods.\n";
+  }
+  // Finding the skeleton for the complete undirected graph on X_T U N_T
+  getSkeletonTotal(); 
+  
+  if (verbose){
+    Rcout << "Beginning algorithm over each individual neighborhood.\n";
+  }
+  // Get the skeleton for each target node and its neighborhood
+  
+  std::for_each(targets.begin(),
+                targets.end(),
+                [this](size_t t){ getSkeletonTarget(t); });
+  
+  // Rule 0: Obtain V Structures
+  rules_used(0) = getVStructures();
+  
+  // Remaining FCI Rules
+  allRules();
+  
+  convertFinalGraph();
+  
+  total_time = total_skeleton_time;
+  total_time += std::accumulate(target_skeleton_times.begin(),
+                                target_skeleton_times.end(),0);
+}
+
